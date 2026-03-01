@@ -1,0 +1,5 @@
+{
+  "name": "Restaurante POS - Toma de Pedidos de mesero",
+  "description": "Un sistema de punto de venta simplificado para que los meseros tomen pedidos de manera rápida y eficiente, con opciones de personalización de productos.",
+  "requestFramePermissions": []
+}

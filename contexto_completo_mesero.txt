@@ -1,0 +1,2556 @@
+CONTEXTO DEL PROYECTO:
+Este archivo contiene todo el código fuente del sistema POS (React + Python).
+Usa esto para entender la estructura completa.
+--------------------------------------------------
+
+
+============================================================
+RUTA: .\App.tsx
+============================================================
+import React from 'react';
+import WaiterPOS from './components/WaiterPOS';      
+import KitchenDisplay from './components/Kitchen'; // Ojo: Tu archivo se llama Kitchen.tsx en el contexto 
+import AdminDashboard from './components/AdminDashboard'; 
+
+function App() {
+  // 1. Leemos la dirección de internet (la URL)
+  const path = window.location.pathname;
+
+  // 2. Si dice "/cocina", mostramos la pantalla del Chef
+  if (path === '/cocina') {
+    return <KitchenDisplay />;
+  }
+
+  // 3. Si dice "/admin", mostramos el Panel de Administración
+  if (path === '/admin') {
+    return <AdminDashboard />;
+  }
+
+  // 4. Por defecto (localhost:3000), mostramos al Mesero
+  return (
+    <div className="app-container">
+       <WaiterPOS />
+    </div>
+  );
+}
+
+export default App;
+
+============================================================
+RUTA: .\constants.ts
+============================================================
+import { Product, Table, Waiter } from './types';
+
+export const SAUCES = ['BBQ', 'Bufalo', 'BBQ Habanero', 'Mango Habanero'];
+
+// Ingredientes específicos para cada categoría
+export const HAMBURGER_INGREDIENTS = [
+  'Mayonesa', 'Lechuga', 'Cebolla', 'Tomate', 
+  'Chile', 'Catsup', 'Cheesewiz', 'Crema', 'Guacamole'
+];
+
+export const HOTDOG_INGREDIENTS = [
+  'Mayonesa', 'Mostaza', 'Cheesewiz', 'Catsup', 'Chile', 
+  'Tomate', 'Queso Rayado'
+];
+
+// Lista combinada para la opción de "Agregar" ingredientes
+const allIngredients = new Set([...HAMBURGER_INGREDIENTS, ...HOTDOG_INGREDIENTS]);
+export const CUSTOMIZABLE_INGREDIENTS = Array.from(allIngredients);
+
+
+// --- DATOS DE MESEROS ---
+// Aquí puedes modificar, agregar o eliminar meseros y sus PINs.
+// En una aplicación real, estos datos vendrían de la base de datos a través de la API.
+export const WAITERS: Waiter[] = [
+    { id: 'w1', name: 'Juan', pin: '1234' },
+    { id: 'w2', name: 'Maria', pin: '5678' },
+    { id: 'w3', name: 'Carlos', pin: '1111' },
+    { id: 'w4', name: 'Ana', pin: '2222' },
+];
+
+export const MENU_ITEMS: Product[] = [
+  // Hamburguesas
+  { id: 'ham_1', name: 'Clásica', price: 80, category: 'Hamburguesas' },
+  { id: 'ham_2', name: 'Clásica c/ Salchicha', price: 90, category: 'Hamburguesas' },
+  { id: 'ham_3', name: '3 Quesos', price: 100, category: 'Hamburguesas' },
+  { id: 'ham_4', name: 'Doble', price: 120, category: 'Hamburguesas' },
+  { id: 'ham_5', name: 'Hawaiana', price: 100, category: 'Hamburguesas' },
+  { id: 'ham_6', name: 'Tocino', price: 100, category: 'Hamburguesas' },
+  { id: 'ham_7', name: 'Moster', price: 150, category: 'Hamburguesas' },
+  { id: 'ham_8', name: 'Hamburguesa del Cheff', price: 130, category: 'Hamburguesas' },
+  { id: 'ham_9', name: 'Hamburguesa Bonelees', price: 130, category: 'Hamburguesas' },
+
+  // Hotdogs
+  { id: 'hd_1', name: 'Paceño', price: 35, category: 'Hotdogs' },
+  { id: 'hd_2', name: 'Paceño c/ Papas', price: 55, category: 'Hotdogs' },
+  { id: 'hd_3', name: 'Normal', price: 40, category: 'Hotdogs' },
+  { id: 'hd_4', name: 'Normal c/ Papas', price: 60, category: 'Hotdogs' },
+  { id: 'hd_5', name: 'Especial', price: 45, category: 'Hotdogs' },
+  { id: 'hd_6', name: 'Especial c/ Papas', price: 65, category: 'Hotdogs' },
+  { id: 'hd_7', name: 'Embarazado', price: 60, category: 'Hotdogs' },
+  { id: 'hd_8', name: 'Embarazado c/ Papas', price: 80, category: 'Hotdogs' },
+  { id: 'hd_9', name: 'Costri Dogo', price: 50, category: 'Hotdogs' },
+  { id: 'hd_10', name: 'Costri Dogo c/ Papas', price: 70, category: 'Hotdogs' },
+  { id: 'hd_11', name: 'Asada', price: 65, category: 'Hotdogs' },
+  { id: 'hd_12', name: 'Asada c/ Papas', price: 85, category: 'Hotdogs' },
+  { id: 'hd_13', name: 'Tres Quesos', price: 55, category: 'Hotdogs' },
+  { id: 'hd_14', name: 'Tres Quesos c/ Papas', price: 75, category: 'Hotdogs' },
+  { id: 'hd_15', name: 'Dogo Burguer', price: 70, category: 'Hotdogs' },
+  { id: 'hd_16', name: 'Dogo Burguer c/ Papas', price: 90, category: 'Hotdogs' },
+  { id: 'hd_17', name: 'Chili Dogo', price: 50, category: 'Hotdogs' },
+  { id: 'hd_18', name: 'Chili Dogo c/ Papas', price: 70, category: 'Hotdogs' },
+  { id: 'hd_19', name: 'Dogo Bonelees', price: 70, category: 'Hotdogs' },
+  { id: 'hd_20', name: 'Dogo Bonelees c/ Papas', price: 85, category: 'Hotdogs' },
+
+  // Superburros
+  { id: 'sb_1', name: 'Super Burro', price: 110, category: 'Superburros' },
+  { id: 'sb_2', name: 'Super Quesaburro', price: 130, category: 'Superburros' },
+  { id: 'sb_3', name: 'Super Quesadilla', price: 150, category: 'Superburros' },
+  { id: 'sb_4', name: 'Super Burro Moster', price: 150, category: 'Superburros' },
+
+  // Boneless
+  { id: 'bn_1', name: 'Boneless Orden (250gr)', price: 115, category: 'Boneless' },
+  { id: 'bn_2', name: 'Orden de Aros de Cebolla', price: 80, category: 'Papas' }, // Re-categorized
+  { id: 'bn_3', name: 'Papas Bonelees', price: 150, category: 'Boneless' }, // It's boneless with fries, makes sense here
+  { id: 'bn_4', name: 'Paque Compartas (Boneless)', price: 300, category: 'Boneless' },
+
+  // Alitas
+  { id: 'al_1', name: 'Alitas 10 Piezas', price: 105, category: 'Alitas' },
+  { id: 'al_2', name: 'Alitas 20 Piezas', price: 195, category: 'Alitas' },
+
+  // Papas
+  { id: 'pa_1', name: 'Orden de Papas', price: 50, category: 'Papas' },
+  { id: 'pa_2', name: 'Salchipapas', price: 65, category: 'Papas' },
+  { id: 'pa_3', name: 'Salchipapas c/ Carne', price: 90, category: 'Papas' },
+  { id: 'pa_4', name: 'Salchipapas c/ Carne Gratinadas', price: 100, category: 'Papas' },
+
+  // Salchichas
+  { id: 'sl_1', name: 'Salchicha Sola', price: 15, category: 'Salchichas' },
+  { id: 'sl_2', name: 'Salchicha Preparada', price: 25, category: 'Salchichas' },
+  { id: 'sl_3', name: 'Salchicha Preparada (Jamón y Queso)', price: 35, category: 'Salchichas' },
+  { id: 'sl_4', name: 'Salchicha Embarazada Preparada', price: 50, category: 'Salchichas' },
+
+  // Bebidas
+  { id: 'beb_1', name: 'Refresco', price: 25, category: 'Bebidas' },
+  { id: 'beb_2', name: 'Té Jazmín de la casa', price: 25, category: 'Bebidas' },
+  { id: 'beb_3', name: 'Agua Natural', price: 15, category: 'Bebidas' },
+  { id: 'beb_4', name: 'Litro de Té', price: 45, category: 'Bebidas' },
+];
+
+export const INITIAL_TABLES: Table[] = Array.from({ length: 8 }, (_, i) => ({
+  id: i + 1,
+  label: `Mesa ${i + 1}`,
+  status: 'AVAILABLE',
+  currentOrderId: null,
+}));
+
+============================================================
+RUTA: .\contexto.py
+============================================================
+import os
+
+# --- CONFIGURACIÓN ---
+# Nombre del archivo que se generará
+ARCHIVO_SALIDA = "contexto_completo.txt"
+
+# Carpetas que la IA NO necesita ver (Ahorra tokens y evita basura)
+CARPETAS_IGNORAR = {
+    'node_modules', '.git', '__pycache__', 'venv', 'env', 
+    '.idea', '.vscode', 'build', 'dist', 'coverage', 
+    'migrations' # Opcional: a veces las migraciones de DB son ruido
+}
+
+# Archivos específicos a ignorar
+ARCHIVOS_IGNORAR = {
+    'package-lock.json', 'yarn.lock', '.DS_Store', 
+    'restaurante.db', 'db.sqlite3', # No subir la base de datos real
+    'preparar_contexto.py', ARCHIVO_SALIDA
+}
+
+# Extensiones de código que SÍ queremos leer
+EXTENSIONES_VALIDAS = {
+    # Backend (Python)
+    '.py', 
+    # Frontend (React/Web)
+    '.js', '.jsx', '.ts', '.tsx', '.html', '.css',
+    # Configuración / Datos
+    '.json', '.sql', '.md', '.txt'
+}
+
+def es_archivo_valido(nombre_archivo):
+    ext = os.path.splitext(nombre_archivo)[1].lower()
+    return (ext in EXTENSIONES_VALIDAS) and (nombre_archivo not in ARCHIVOS_IGNORAR)
+
+def crear_contexto():
+    print(f"🚀 Iniciando escaneo del proyecto...")
+    
+    contador_archivos = 0
+    
+    with open(ARCHIVO_SALIDA, 'w', encoding='utf-8') as f_out:
+        # Escribimos una pequeña introducción para la IA
+        f_out.write("CONTEXTO DEL PROYECTO:\n")
+        f_out.write("Este archivo contiene todo el código fuente del sistema POS (React + Python).\n")
+        f_out.write("Usa esto para entender la estructura completa.\n")
+        f_out.write("-" * 50 + "\n\n")
+
+        # Recorremos todas las carpetas desde la raíz
+        for root, dirs, files in os.walk("."):
+            # Filtrar carpetas prohibidas para no entrar en ellas
+            dirs[:] = [d for d in dirs if d not in CARPETAS_IGNORAR]
+            
+            for file in files:
+                if es_archivo_valido(file):
+                    ruta_completa = os.path.join(root, file)
+                    
+                    try:
+                        # Leemos el contenido del archivo
+                        with open(ruta_completa, 'r', encoding='utf-8') as f_in:
+                            contenido = f_in.read()
+                        
+                        # Escribimos el encabezado y el contenido en el archivo final
+                        f_out.write(f"\n{'='*60}\n")
+                        f_out.write(f"RUTA: {ruta_completa}\n")
+                        f_out.write(f"{'='*60}\n")
+                        f_out.write(contenido)
+                        f_out.write("\n")
+                        
+                        print(f"✅ Agregado: {ruta_completa}")
+                        contador_archivos += 1
+                        
+                    except Exception as e:
+                        print(f"❌ Error leyendo {ruta_completa}: {e}")
+
+    print(f"\n✨ ¡Terminado! Se han compactado {contador_archivos} archivos.")
+    print(f"📂 Archivo generado: {ARCHIVO_SALIDA}")
+    print("👉 Sube este archivo al chat de AI Studio.")
+
+if __name__ == "__main__":
+    crear_contexto()
+
+============================================================
+RUTA: .\index.html
+============================================================
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurante POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom Scrollbar for the ticket view */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+      /* Modal Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.2s ease-out forwards;
+      }
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-100 text-gray-900 font-sans antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
+
+
+============================================================
+RUTA: .\index.tsx
+============================================================
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+============================================================
+RUTA: .\metadata.json
+============================================================
+{
+  "name": "Restaurante POS - Toma de Pedidos de mesero",
+  "description": "Un sistema de punto de venta simplificado para que los meseros tomen pedidos de manera rápida y eficiente, con opciones de personalización de productos.",
+  "requestFramePermissions": []
+}
+
+============================================================
+RUTA: .\package.json
+============================================================
+{
+  "name": "restaurante-pos---toma-de-pedidos-de-mesero",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "lucide-react": "^0.563.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
+
+
+============================================================
+RUTA: .\README.md
+============================================================
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/drive/17EUw4rgcOzuorQo4Q-tKR5jpGb23Eeoi
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
+
+
+============================================================
+RUTA: .\tsconfig.json
+============================================================
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}
+
+============================================================
+RUTA: .\types.ts
+============================================================
+export type Category = 'Hamburguesas' | 'Hotdogs' | 'Superburros' | 'Boneless' | 'Alitas' | 'Papas' | 'Salchichas' | 'Bebidas';
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: Category;
+}
+
+export interface OrderItem extends Product {
+  quantity: number;
+  notes?: string;
+}
+
+export interface Order {
+  id: string; // Unique ID for the order
+  type: 'DINE_IN' | 'TAKEAWAY';
+  items: OrderItem[];
+  total: number;
+  status: 'OPEN' | 'COMPLETED' | 'KITCHEN_DONE';
+  paymentStatus: 'PAID' | 'UNPAID';
+  waiterName: string; // Name of the waiter who took the order
+  customerName?: string; // For takeaway
+  tableId?: number; // For dine-in
+  createdAt: number;
+}
+
+export interface Table {
+  id: number;
+  label: string;
+  status: 'AVAILABLE' | 'OCCUPIED';
+  currentOrderId?: string | null;
+  waiterName?: string; // Name of the waiter who opened the table
+}
+
+export interface Waiter {
+    id: string;
+    name: string;
+    pin: string;
+}
+
+export enum ViewMode {
+  LOGIN = 'LOGIN',
+  EMPLOYEE_SELECT = 'EMPLOYEE_SELECT',
+  TABLES = 'TABLES',
+  TAKEAWAY = 'TAKEAWAY',
+  ORDER_PAD = 'ORDER_PAD'
+}
+
+
+============================================================
+RUTA: .\vite.config.ts
+============================================================
+import path from 'path';
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, '.', '');
+    return {
+      server: {
+        port: 3000,
+        host: '0.0.0.0',
+      },
+      plugins: [react()],
+      define: {
+        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      },
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, '.'),
+        }
+      }
+    };
+});
+
+
+============================================================
+RUTA: .\components\AdminDashboard.tsx
+============================================================
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Order, OrderItem } from '../types';
+import { api } from '../services/api';
+import { 
+    DollarSign, 
+    ShoppingBag, 
+    Utensils, 
+    ClipboardList, 
+    ChevronDown, 
+    Trash2, 
+    Clock, 
+    User, 
+    RefreshCw,
+    Loader2
+} from 'lucide-react';
+
+const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string | number; color: string }> = ({ icon, title, value, color }) => (
+    <div className={`bg-white p-6 rounded-2xl shadow-lg flex items-center gap-6 border-l-8 ${color}`}>
+        {icon}
+        <div>
+            <p className="text-gray-500 font-semibold">{title}</p>
+            <p className="text-4xl font-extrabold text-gray-800">{value}</p>
+        </div>
+    </div>
+);
+
+const OrderDetailRow: React.FC<{ item: OrderItem }> = ({ item }) => (
+    <div className="flex justify-between items-start py-3 px-4 hover:bg-gray-50 rounded-md">
+        <div>
+            <p className="font-bold text-gray-800">{item.quantity}x {item.name}</p>
+            {item.notes && <p className="text-sm text-blue-600 italic">"{item.notes}"</p>}
+        </div>
+        <p className="font-semibold text-gray-600">${(item.quantity * item.price).toFixed(2)}</p>
+    </div>
+);
+
+const OrderAdminCard: React.FC<{ order: Order; onDelete: (orderId: string) => void; }> = ({ order, onDelete }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const orderTypeColor = order.type === 'DINE_IN' ? 'border-orange-500' : 'border-purple-500';
+    const orderTypeBgColor = order.type === 'DINE_IN' ? 'bg-orange-50' : 'bg-purple-50';
+
+    const getStatusChip = (status: Order['status'], paymentStatus: Order['paymentStatus']) => {
+        if (paymentStatus === 'PAID' && status === 'COMPLETED') return <span className="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-1 rounded-full">FINALIZADO</span>;
+        if (paymentStatus === 'PAID') return <span className="bg-green-200 text-green-800 text-xs font-bold px-2 py-1 rounded-full">PAGADO</span>;
+        if (status === 'KITCHEN_DONE') return <span className="bg-blue-200 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">LISTO</span>;
+        return <span className="bg-yellow-200 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full">ABIERTO</span>;
+    };
+
+    return (
+        <div className={`bg-white rounded-2xl shadow-md border-t-4 ${orderTypeColor} transition-shadow hover:shadow-xl`}>
+            <div className="p-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mb-2 sm:mb-0">
+                        <h3 className="font-extrabold text-xl text-gray-900">
+                            {order.type === 'DINE_IN' ? `Mesa ${order.tableId}` : order.customerName}
+                        </h3>
+                        <div className="flex items-center text-sm text-gray-500 gap-4 mt-1">
+                            <span className="flex items-center gap-1"><Clock size={14} /> {new Date(order.createdAt).toLocaleTimeString()}</span>
+                            <span className="flex items-center gap-1"><User size={14} /> {order.waiterName}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 justify-between">
+                         <div className="text-right">
+                           {getStatusChip(order.status, order.paymentStatus)}
+                           <p className="font-bold text-2xl text-gray-800 mt-1">${order.total.toFixed(2)}</p>
+                         </div>
+                        <ChevronDown size={24} className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </div>
+                </div>
+            </div>
+
+            {isExpanded && (
+                <div className={`border-t-2 border-dashed ${orderTypeBgColor} p-4`}>
+                    <h4 className="font-bold mb-2 text-gray-700">Desglose del Pedido:</h4>
+                    <div className="space-y-2">
+                        {order.items.map((item, index) => <OrderDetailRow key={`${item.id}-${index}`} item={item} />)}
+                    </div>
+                    <div className="flex justify-end mt-4">
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if(window.confirm('¿Seguro que quieres eliminar este pedido permanentemente?')) {
+                                    onDelete(order.id);
+                                }
+                            }}
+                            className="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm py-2 px-3 rounded-lg transition-colors">
+                            <Trash2 size={16} /> Eliminar Pedido
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const AdminDashboard: React.FC = () => {
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchOrders = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const fetchedOrders = await api.getTodaysOrders();
+            setOrders(fetchedOrders.sort((a, b) => b.createdAt - a.createdAt)); // Sort by most recent first
+            setError(null);
+        } catch (err) {
+            setError("No se pudieron cargar los pedidos.");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchOrders();
+    }, [fetchOrders]);
+    
+    const handleDeleteOrder = async (orderId: string) => {
+        try {
+            await api.deleteOrder(orderId);
+            fetchOrders(); // Refresh list after deletion
+        } catch(e) {
+            console.error("Failed to delete order", e);
+            alert("Error al eliminar el pedido.");
+        }
+    };
+
+    const stats = useMemo(() => {
+        const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+        const dineInCount = orders.filter(o => o.type === 'DINE_IN').length;
+        const takeawayCount = orders.filter(o => o.type === 'TAKEAWAY').length;
+        return { totalSales, dineInCount, takeawayCount };
+    }, [orders]);
+
+    return (
+        <div className="h-screen bg-gray-100 flex flex-col">
+            <header className="bg-white p-4 shadow-md z-10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <ClipboardList size={32} className="text-teal-600" />
+                    <h1 className="text-3xl font-extrabold text-gray-800">Panel de Administración</h1>
+                </div>
+                 <button 
+                    onClick={fetchOrders} 
+                    disabled={isLoading}
+                    className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+                 >
+                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+                    Actualizar
+                </button>
+            </header>
+
+            {/* Stats */}
+            <div className="p-6 bg-gray-50 border-b border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                    <StatCard icon={<DollarSign size={40} className="text-green-500"/>} title="Ventas Totales" value={`$${stats.totalSales.toFixed(2)}`} color="border-green-500" />
+                    <StatCard icon={<Utensils size={40} className="text-orange-500"/>} title="Pedidos en Restaurante" value={stats.dineInCount} color="border-orange-500" />
+                    <StatCard icon={<ShoppingBag size={40} className="text-purple-500"/>} title="Pedidos para Llevar" value={stats.takeawayCount} color="border-purple-500" />
+                </div>
+            </div>
+
+            <main className="flex-1 p-6 overflow-y-auto">
+                <div className="max-w-4xl mx-auto space-y-4">
+                    {isLoading && <p className="text-center text-gray-500">Cargando pedidos...</p>}
+                    {error && <p className="text-center text-red-500">{error}</p>}
+                    {!isLoading && orders.length === 0 && (
+                        <div className="text-center text-gray-400 py-16">
+                            <ClipboardList size={64} className="mx-auto mb-4" />
+                            <h2 className="text-xl font-semibold">No hay pedidos registrados hoy.</h2>
+                        </div>
+                    )}
+                    {orders.map(order => (
+                        <OrderAdminCard key={order.id} order={order} onDelete={handleDeleteOrder} />
+                    ))}
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default AdminDashboard;
+
+
+============================================================
+RUTA: .\components\Kitchen.tsx
+============================================================
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Order } from '../types';
+import { api } from '../services/api';
+import { ChefHat, Clock, ShoppingBag, Utensils, X, Bell, CheckCircle, Power } from 'lucide-react';
+
+// A simple, audible tone for notifications encoded as a data URI
+const NOTIFICATION_SOUND_URI = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoD/v/i/+AD/4If/gn/+wj/8weEAgwF+gQ7BQQD5wM3AvwB+wH8AfwB/AH8AfsB/QH+Af4B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8B/wH/Af8BFix";
+
+interface EstimateModalProps {
+  order: Order;
+  onClose: () => void;
+  onConfirm: (minutes: number) => void;
+}
+
+const EstimateModal: React.FC<EstimateModalProps> = ({ order, onClose, onConfirm }) => {
+  const [minutes, setMinutes] = useState(order.kitchenEstimate || 15);
+
+  const handleConfirm = () => {
+    onConfirm(minutes);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900">Estimar Tiempo</h3>
+          <button onClick={onClose} className="text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <p className="text-gray-600 mb-4">
+          Para pedido: <span className="font-bold">{order.type === 'DINE_IN' ? `Mesa ${order.tableId}` : order.customerName}</span>
+        </p>
+        <div className="flex items-center justify-center gap-4 my-6">
+          <button onClick={() => setMinutes(m => Math.max(5, m - 5))} className="w-12 h-12 bg-gray-100 rounded-full text-2xl font-bold">-</button>
+          <span className="text-5xl font-bold w-24 text-center">{minutes}</span>
+          <button onClick={() => setMinutes(m => Math.min(60, m + 5))} className="w-12 h-12 bg-gray-100 rounded-full text-2xl font-bold">+</button>
+        </div>
+        <p className="text-center text-gray-500 mb-6">minutos</p>
+        <button onClick={handleConfirm} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors">Confirmar Tiempo</button>
+      </div>
+    </div>
+  );
+};
+
+const TimeElapsed: React.FC<{ createdAt: number }> = ({ createdAt }) => {
+  const [elapsed, setElapsed] = useState(Math.floor((Date.now() - createdAt) / 1000));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - createdAt) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [createdAt]);
+
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+
+  const timeColor = minutes >= 15 ? 'text-red-500' : minutes >= 10 ? 'text-yellow-500' : 'text-green-500';
+
+  return (
+    <span className={`font-mono font-bold text-lg ${timeColor}`}>
+      {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+    </span>
+  );
+};
+
+interface OrderCardProps {
+  order: Order;
+  onComplete: (orderId: string) => void;
+  onSetEstimate: (order: Order) => void;
+}
+
+const OrderCard: React.FC<OrderCardProps> = ({ order, onComplete, onSetEstimate }) => {
+  const cardColor = order.type === 'DINE_IN' ? 'bg-orange-50 border-orange-200' : 'bg-purple-50 border-purple-200';
+  const headerColor = order.type === 'DINE_IN' ? 'bg-orange-100' : 'bg-purple-100';
+  const icon = order.type === 'DINE_IN' ? <Utensils className="text-orange-600" size={24} /> : <ShoppingBag className="text-purple-600" size={24} />;
+  
+  const orderTitle = order.type === 'DINE_IN' ? `Mesa ${order.tableId}` : order.customerName;
+
+  return (
+    <div className={`rounded-2xl shadow-lg flex flex-col overflow-hidden border-2 ${cardColor}`}>
+      {/* Header */}
+      <div className={`p-4 flex items-center justify-between ${headerColor}`}>
+        <div className="flex items-center gap-3">
+          {icon}
+          <div >
+            <h3 className="text-xl font-extrabold text-gray-800">{orderTitle}</h3>
+            <p className="text-sm text-gray-600 font-medium">Por: {order.waiterName}</p>
+          </div>
+        </div>
+        <TimeElapsed createdAt={order.createdAt} />
+      </div>
+
+      {/* Items */}
+      <div className="p-4 flex-1 space-y-3 bg-white overflow-y-auto">
+        {order.items.map((item, index) => (
+          <div key={`${item.id}-${index}`} className="flex items-start justify-between gap-2 pb-2 border-b border-gray-100 last:border-b-0">
+            <div className="flex-1">
+              <p className="font-bold text-gray-800">
+                <span className="inline-flex items-center justify-center w-6 h-6 mr-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-md">{item.quantity}x</span>
+                {item.name}
+              </p>
+              {item.notes && <p className="text-sm text-blue-600 font-semibold pl-8 mt-1 italic">"{item.notes}"</p>}
+            </div>
+            <span className="text-sm text-gray-500 font-medium">${item.price.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="p-3 bg-gray-50 border-t border-gray-200 grid grid-cols-2 gap-3">
+        <button 
+          onClick={() => onSetEstimate(order)} 
+          className="flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-blue-600 font-bold py-3 rounded-lg border border-blue-200 transition-colors shadow-sm"
+        >
+          <Clock size={18} />
+          {order.kitchenEstimate ? `${order.kitchenEstimate} min` : 'Estimar'}
+        </button>
+        <button 
+          onClick={() => onComplete(order.id)}
+          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-green-200"
+        >
+          <CheckCircle size={18} />
+          Listo
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const KitchenDisplay: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [orderForEstimate, setOrderForEstimate] = useState<Order | null>(null);
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const prevOrderIds = useRef<Set<string>>(new Set());
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      setError(null);
+      const activeOrders = await api.getActiveOrders();
+      
+      const kitchenOrders = activeOrders.filter(o => o.status === 'OPEN');
+      
+      // Notification logic
+      const currentOrderIds = new Set(kitchenOrders.map(o => o.id));
+      if (prevOrderIds.current.size > 0) {
+        const newOrders = kitchenOrders.filter(o => !prevOrderIds.current.has(o.id));
+        if (newOrders.length > 0) {
+          notificationAudioRef.current?.play().catch(e => console.error("Audio play failed", e));
+        }
+      }
+      prevOrderIds.current = currentOrderIds;
+      
+      setOrders(kitchenOrders);
+    } catch (err) {
+      setError("No se pudo conectar con el servidor. Reintentando...");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 5000); // Poll every 5 seconds
+    
+    // Setup audio element
+    if (!notificationAudioRef.current) {
+        notificationAudioRef.current = new Audio(NOTIFICATION_SOUND_URI);
+    }
+
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
+  
+  const handleCompleteOrder = async (orderId: string) => {
+    try {
+      await api.completeKitchenOrder(orderId);
+      fetchOrders();
+    } catch (e) {
+      console.error("Failed to complete order:", e);
+      alert("Error al marcar el pedido como listo.");
+    }
+  };
+
+  const handleSetEstimate = async (minutes: number) => {
+    if (!orderForEstimate) return;
+    try {
+      await api.setKitchenEstimate(orderForEstimate.id, minutes);
+      setOrderForEstimate(null);
+      fetchOrders();
+    } catch (e) {
+      console.error("Failed to set estimate:", e);
+      alert("Error al guardar la estimación.");
+    }
+  };
+
+  const handleCloseDay = async () => {
+    if (window.confirm("¿Estás seguro de que quieres cerrar el día? Esta acción finalizará la jornada y no se podrán registrar más pedidos.")) {
+        try {
+            await api.closeDay();
+            alert("El día se ha cerrado correctamente.");
+            window.location.reload();
+        } catch (e) {
+            console.error("Failed to close day:", e);
+            alert("Error al cerrar el día. Por favor, inténtalo de nuevo.");
+        }
+    }
+  };
+
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => a.createdAt - b.createdAt);
+  }, [orders]);
+
+  return (
+    <div className="h-screen w-screen bg-gray-800 text-white flex flex-col overflow-hidden">
+      {orderForEstimate && (
+        <EstimateModal
+          order={orderForEstimate}
+          onClose={() => setOrderForEstimate(null)}
+          onConfirm={handleSetEstimate}
+        />
+      )}
+      <header className="bg-gray-900 p-4 shadow-lg z-10 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+           <ChefHat size={32} className="text-orange-400" />
+            <h1 className="text-3xl font-extrabold tracking-tight">Pantalla de Cocina</h1>
+        </div>
+        <div className="flex items-center gap-6">
+            {error && <p className="text-red-400 font-semibold">{error}</p>}
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                  <p className="font-bold text-lg">{sortedOrders.length}</p>
+                  <p className="text-sm text-gray-400">Pedidos Pendientes</p>
+              </div>
+              <Bell size={24} className={`transition-colors ${sortedOrders.length > 0 ? 'text-yellow-400 animate-pulse' : 'text-gray-600'}`} />
+            </div>
+            <button 
+              onClick={handleCloseDay}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors shadow-md"
+            >
+              <Power size={18} />
+              Cerrar Día
+            </button>
+        </div>
+      </header>
+
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-xl text-gray-400">Cargando pedidos...</p>
+          </div>
+        ) : sortedOrders.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-center">
+            <div className="p-12 bg-gray-900/50 rounded-2xl">
+              <CheckCircle size={64} className="mx-auto text-green-500 mb-4" />
+              <h2 className="text-2xl font-bold text-gray-300">¡Todo listo!</h2>
+              <p className="text-gray-400 mt-2">No hay pedidos pendientes.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {sortedOrders.map(order => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                onComplete={handleCompleteOrder}
+                onSetEstimate={(orderToEstimate) => setOrderForEstimate(orderToEstimate)}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default KitchenDisplay;
+
+
+============================================================
+RUTA: .\components\OrderPad.tsx
+============================================================
+import React, { useMemo, useState } from 'react';
+import { MENU_ITEMS } from '../constants';
+import { Order, OrderItem, Product, Category } from '../types';
+import { Trash2, Plus, Minus, Save, CheckCircle, ArrowLeft, Search, UtensilsCrossed, Beer, Coffee, Sandwich, ReceiptText, User } from 'lucide-react';
+
+interface OrderPadProps {
+  currentOrder: Order;
+  onUpdateOrder: (order: Order) => void;
+  onSave: () => void;
+  onFinish: () => void;
+  onBack: () => void;
+  title: string;
+  waiterName: string;
+  onRequestSauceSelection: (product: Product) => void;
+  onRequestCustomization: (product: Product) => void;
+}
+
+// UI Type only, includes 'Todos'
+type UiCategory = Category | 'Todos';
+
+const CATEGORIES: UiCategory[] = ['Todos', 'Hamburguesas', 'Hotdogs', 'Superburros', 'Boneless', 'Alitas', 'Papas', 'Salchichas', 'Bebidas'];
+
+// Create a dedicated, stable component for rendering icons.
+const CategoryIcon: React.FC<{ category: Category }> = ({ category }) => {
+    switch (category) {
+        case 'Hamburguesas': return <UtensilsCrossed size={16} />;
+        case 'Hotdogs': return <Sandwich size={16} />;
+        case 'Alitas': return <UtensilsCrossed size={16} />;
+        case 'Boneless': return <UtensilsCrossed size={16} />;
+        case 'Bebidas': return <Beer size={16} />;
+        case 'Papas': return <Coffee size={16} />;
+        case 'Salchichas': return <Sandwich size={16} />;
+        case 'Superburros': return <UtensilsCrossed size={16} />;
+        default: return <Coffee size={16} />;
+    }
+};
+
+interface TicketContentProps {
+  currentOrder: Order;
+  updateQuantity: (itemId: string, delta: number, notes?: string) => void;
+  onSave: () => void;
+  onFinish: () => void;
+}
+
+const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuantity, onSave, onFinish }) => (
+  <>
+    {/* Order Items List */}
+    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+      {currentOrder.items.length === 0 ? (
+        <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 space-y-4">
+          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+              <UtensilsCrossed size={32} />
+          </div>
+          <p className="font-medium text-center px-8">Selecciona productos del menú para comenzar el pedido</p>
+        </div>
+      ) : (
+        currentOrder.items.map(item => (
+          <div key={`${item.id}-${item.notes}`} className="group flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md">
+            <div className="p-3 flex justify-between items-start">
+                <div className="flex-1 pr-2">
+                    {/* FIX: Removed redundant String() call. */}
+                    <p className="font-bold text-gray-800 leading-tight text-sm">{item.name}</p>
+                    {item.notes && <p className="text-xs text-blue-600 font-semibold mt-1">{item.notes}</p>}
+                    <p className="text-xs text-gray-500 mt-1 font-mono">${item.price.toFixed(2)}</p>
+                </div>
+                <span className="font-bold text-gray-900 text-lg">${(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+            <div className="bg-gray-50 p-2 flex items-center justify-between border-t border-gray-100">
+                <button 
+                    onClick={() => updateQuantity(item.id, -1, item.notes)}
+                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                >
+                    {item.quantity === 1 ? <Trash2 size={16}/> : <Minus size={16}/>}
+                </button>
+                <span className="font-bold text-lg w-8 text-center text-slate-700">{item.quantity}</span>
+                <button 
+                    onClick={() => updateQuantity(item.id, 1, item.notes)}
+                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-green-50 hover:text-green-600 hover:border-green-200 shadow-sm transition-colors"
+                >
+                    <Plus size={16}/>
+                </button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+
+    {/* Footer Totals & Actions */}
+    <div className="border-t border-gray-200 p-5 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10">
+      <div className="flex justify-between items-end mb-4">
+        <span className="text-gray-500 font-medium pb-1">Total a Pagar</span>
+        <span className="text-4xl font-extrabold text-slate-900">${currentOrder.total.toFixed(2)}</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={onSave}
+          disabled={currentOrder.items.length === 0}
+          className="flex flex-col items-center justify-center bg-white border-2 border-amber-400 text-amber-600 hover:bg-amber-50 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+        >
+          <Save className="mb-1 w-5 h-5" />
+          <span className="text-sm">Guardar y Salir</span>
+        </button>
+        <button
+          onClick={onFinish}
+          disabled={currentOrder.items.length === 0}
+          className="flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+        >
+          <CheckCircle className="mb-1 w-5 h-5" />
+          <span className="text-sm">Cobrar</span>
+        </button>
+      </div>
+    </div>
+  </>
+);
+
+
+export const OrderPad: React.FC<OrderPadProps> = ({ 
+  currentOrder, 
+  onUpdateOrder, 
+  onSave, 
+  onFinish,
+  onBack,
+  title,
+  waiterName,
+  onRequestSauceSelection,
+  onRequestCustomization,
+}) => {
+  const [selectedCategory, setSelectedCategory] = useState<UiCategory>('Todos');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isTicketVisible, setIsTicketVisible] = useState(false);
+
+  // Filter products by category and search term
+  const filteredProducts = useMemo(() => {
+    let products = MENU_ITEMS;
+    
+    if (selectedCategory !== 'Todos') {
+      products = products.filter(p => p.category === selectedCategory);
+    }
+
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      products = products.filter(p => p.name.toLowerCase().includes(lowerTerm));
+    }
+
+    return products;
+  }, [selectedCategory, searchTerm]);
+
+  const addItem = (product: Product) => {
+    const productsRequiringSauce = ['ham_9', 'hd_19', 'hd_20'];
+    const productsRequiringCustomization = ['Hamburguesas', 'Hotdogs'];
+
+    if(productsRequiringCustomization.includes(product.category)){
+      onRequestCustomization(product);
+      return;
+    }
+
+    if (product.category === 'Boneless' || product.category === 'Alitas' || productsRequiringSauce.includes(product.id)) {
+      onRequestSauceSelection(product);
+      return;
+    }
+
+    const existingItemIndex = currentOrder.items.findIndex(i => i.id === product.id && !i.notes);
+    let newItems = [...currentOrder.items];
+
+    if (existingItemIndex >= 0) {
+      newItems[existingItemIndex].quantity += 1;
+    } else {
+      newItems.push({ ...product, quantity: 1, notes: 'Con todo' });
+    }
+    
+    recalculateTotal(newItems);
+  };
+
+  const updateQuantity = (itemId: string, delta: number, notes?: string) => {
+    const newItems = currentOrder.items.map(item => {
+      if (item.id === itemId && item.notes === notes) {
+        return { ...item, quantity: Math.max(0, item.quantity + delta) };
+      }
+      return item;
+    }).filter(item => item.quantity > 0);
+
+    recalculateTotal(newItems);
+  };
+
+  const recalculateTotal = (items: OrderItem[]) => {
+    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    onUpdateOrder({ ...currentOrder, items, total });
+  };
+  
+  const getCategoryStyles = (cat: Category) => {
+     switch(cat) {
+        case 'Hamburguesas': return 'border-orange-200 bg-orange-50 hover:bg-orange-100';
+        case 'Hotdogs': return 'border-yellow-200 bg-yellow-50 hover:bg-yellow-100';
+        case 'Boneless': return 'border-red-200 bg-red-50 hover:bg-red-100';
+        case 'Alitas': return 'border-red-200 bg-red-50 hover:bg-red-100';
+        case 'Superburros': return 'border-amber-200 bg-amber-50 hover:bg-amber-100';
+        case 'Papas': return 'border-lime-200 bg-lime-50 hover:bg-lime-100';
+        case 'Salchichas': return 'border-pink-200 bg-pink-50 hover:bg-pink-100';
+        case 'Bebidas': return 'border-blue-200 bg-blue-50 hover:bg-blue-100';
+        default: return 'border-gray-200 bg-white hover:bg-gray-50';
+     }
+  };
+
+  return (
+    <div className="h-screen w-full bg-gray-100 flex flex-col md:flex-row overflow-hidden">
+      {/* LEFT SIDE: PRODUCT SELECTION */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden border-r border-gray-300 relative">
+        
+        {/* Header Navigation */}
+        <div className="bg-white p-4 shadow-sm z-10 space-y-4">
+          <div className="flex items-center justify-between">
+            <button onClick={onBack} className="flex items-center text-gray-600 hover:text-gray-900 font-medium">
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Volver
+            </button>
+            <h2 className="text-base md:text-xl font-bold text-gray-800 truncate px-2">{title}</h2>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User size={16} /> 
+                <span className="font-bold">{waiterName}</span>
+            </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative">
+             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+             <input 
+               type="text" 
+               placeholder="Buscar producto..." 
+               className="w-full pl-10 pr-4 py-3 bg-gray-100 border border-transparent focus:bg-white focus:border-blue-300 rounded-xl transition-all outline-none"
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+             />
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="bg-white px-4 pb-4 border-b border-gray-200">
+          <div className="flex overflow-x-auto space-x-2 scrollbar-hide">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap text-sm transition-all border ${
+                  selectedCategory === cat 
+                    ? 'bg-slate-800 text-white border-slate-800 shadow-md' 
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
+          {filteredProducts.length === 0 ? (
+             <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60">
+                <Search size={64} className="mb-4" />
+                <p className="text-lg font-medium">No se encontraron productos</p>
+             </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
+              {filteredProducts.map(product => {
+                const quantityInCart = currentOrder.items.filter(i => i.id === product.id).reduce((sum, item) => sum + item.quantity, 0);
+                
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => addItem(product)}
+                    className={`
+                      relative p-3 md:p-4 rounded-xl shadow-sm transition-all active:scale-95 flex flex-col justify-between h-40 md:h-44 border-2
+                      group text-left
+                      ${getCategoryStyles(product.category)}
+                      ${quantityInCart > 0 ? 'ring-2 ring-blue-500 ring-offset-2 border-blue-200' : ''}
+                    `}
+                  >
+                    {quantityInCart > 0 && (
+                        <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-blue-600 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-md animate-bounce">
+                            {quantityInCart}
+                        </div>
+                    )}
+                    
+                    <div className="w-full">
+                        <div className="flex items-center gap-1 text-xs opacity-60 font-bold uppercase mb-1 tracking-wider">
+                            <CategoryIcon category={product.category} />
+                            {product.category}
+                        </div>
+                        <span className="font-bold text-gray-800 text-base md:text-lg leading-tight block">
+                            {/* FIX: Removed redundant String() call. */}
+                            {product.name}
+                        </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-end w-full mt-2">
+                       <span className="text-lg md:text-xl font-extrabold text-slate-700">${product.price.toFixed(2)}</span>
+                       <div className={`
+                           p-2 rounded-full transition-colors shadow-sm
+                           ${quantityInCart > 0 ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 group-hover:text-blue-600 group-hover:bg-white'}
+                       `}>
+                          <Plus size={20} />
+                       </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+        
+      {/* DESKTOP TICKET */}
+      <div className="w-full md:w-96 bg-white hidden md:flex flex-col h-full shadow-2xl z-20 border-l border-gray-200">
+        <div className="bg-slate-900 text-white p-5 shadow-lg z-10">
+            <div className="flex justify-between items-center mb-1">
+                <h3 className="font-bold text-xl tracking-tight">Ticket</h3>
+                <span className="bg-slate-700 text-xs px-2 py-1 rounded text-slate-200 font-mono border border-slate-600">
+                    {currentOrder.items.length} items
+                </span>
+            </div>
+            <p className="text-sm text-slate-400 flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${currentOrder.type === 'DINE_IN' ? 'bg-green-500' : 'bg-purple-500'}`}></span>
+                {currentOrder.type === 'DINE_IN' ? 'Comer Aquí' : 'Para Llevar'}
+            </p>
+        </div>
+        <TicketContent 
+            currentOrder={currentOrder}
+            updateQuantity={updateQuantity}
+            onSave={onSave}
+            onFinish={onFinish}
+        />
+      </div>
+      
+      {/* MOBILE TICKET OVERLAY */}
+      {isTicketVisible && (
+          <div className="fixed inset-0 z-30 bg-white flex flex-col md:hidden animate-slide-up">
+            <div className="bg-slate-900 text-white p-5 shadow-lg z-10 flex items-center justify-between">
+                <button onClick={() => setIsTicketVisible(false)} className="flex items-center gap-2 text-slate-300 hover:text-white">
+                    <ArrowLeft size={20} />
+                    <span className="font-bold">Menú</span>
+                </button>
+                <h3 className="font-bold text-xl tracking-tight">Ticket</h3>
+                 <span className="bg-slate-700 text-xs px-2 py-1 rounded text-slate-200 font-mono border border-slate-600">
+                    {currentOrder.items.length} items
+                </span>
+            </div>
+             <TicketContent 
+                currentOrder={currentOrder}
+                updateQuantity={updateQuantity}
+                onSave={onSave}
+                onFinish={onFinish}
+            />
+          </div>
+      )}
+
+      {/* MOBILE FLOATING ACTION BUTTON */}
+      <div className="md:hidden">
+          <button 
+            onClick={() => setIsTicketVisible(true)}
+            disabled={currentOrder.items.length === 0}
+            className="fixed bottom-5 right-5 bg-blue-600 text-white rounded-full shadow-2xl h-16 w-auto px-6 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100"
+          >
+              <ReceiptText size={24} />
+              <div className="text-left">
+                <span className="font-bold text-lg">${currentOrder.total.toFixed(2)}</span>
+                <span className="block text-xs opacity-80 -mt-1">{currentOrder.items.length} items</span>
+              </div>
+          </button>
+      </div>
+
+    </div>
+  );
+};
+
+============================================================
+RUTA: .\components\WaiterPOS.tsx
+============================================================
+import React, { useState, useMemo, useEffect } from 'react';
+// CORRECCIÓN 1: Ajuste de rutas (subimos un nivel con ../)
+import { ViewMode, Table, Order, Waiter, Product } from '../types'; 
+import { SAUCES, HAMBURGER_INGREDIENTS, HOTDOG_INGREDIENTS, CUSTOMIZABLE_INGREDIENTS } from '../constants';
+import { api } from '../services/api';
+
+// CORRECCIÓN 2: Importación de OrderPad (ahora es vecino, usamos ./)
+import { OrderPad } from './OrderPad'; 
+
+import { 
+  Utensils, 
+  ShoppingBag, 
+  ArrowLeft, 
+  LayoutGrid, 
+  PlusCircle, 
+  Clock, 
+  X,
+  Wallet,
+  CheckCheck,
+  Trash2,
+  User,
+  LogOut,
+  Delete,
+  LoaderCircle,
+  MessageSquareQuote
+} from 'lucide-react';
+
+// --- LOGIN COMPONENTS ---
+
+interface PinModalProps {
+  waiter: Waiter;
+  onClose: () => void;
+  onLoginSuccess: (waiter: Waiter) => void;
+}
+
+const PinModal: React.FC<PinModalProps> = ({ waiter, onClose, onLoginSuccess }) => {
+    const [pin, setPin] = useState('');
+    const [error, setError] = useState(false);
+
+    const handlePinInput = (digit: string) => {
+        if (pin.length < 4) {
+            setPin(pin + digit);
+        }
+    };
+    
+    const handleBackspace = () => {
+        setPin(pin.slice(0, -1));
+        setError(false);
+    };
+
+    useEffect(() => {
+        if (pin.length === 4) {
+            api.getWaiters().then(waiters => {
+                const matchedWaiter = waiters.find(w => w.id === waiter.id && w.pin === pin);
+                if (matchedWaiter) {
+                    onLoginSuccess(matchedWaiter);
+                } else {
+                    setError(true);
+                    setTimeout(() => {
+                      setPin('');
+                      setError(false);
+                    }, 800);
+                }
+            });
+        }
+    }, [pin, waiter, onLoginSuccess]);
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xs p-6 text-center animate-slide-up">
+                <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
+                    <X size={20} />
+                </button>
+                <User size={48} className="mx-auto text-gray-400 mb-2" />
+                <h3 className="text-xl font-bold text-gray-900">Hola, {waiter.name}</h3>
+                <p className="text-gray-500 mb-4">Ingresa tu PIN de 4 dígitos</p>
+
+                <div className={`flex justify-center gap-3 mb-4`}>
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className={`w-10 h-10 rounded-full border-2 ${error ? 'border-red-500 animate-shake' : 'border-gray-300'} flex items-center justify-center`}>
+                            {pin[i] && <div className="w-4 h-4 bg-gray-700 rounded-full"></div>}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(d => (
+                        <button key={d} onClick={() => handlePinInput(d.toString())} className="h-16 bg-gray-100 hover:bg-gray-200 rounded-lg text-2xl font-bold transition-colors">
+                            {d}
+                        </button>
+                    ))}
+                    <div/>
+                    <button onClick={() => handlePinInput('0')} className="h-16 bg-gray-100 hover:bg-gray-200 rounded-lg text-2xl font-bold transition-colors">
+                        0
+                    </button>
+                    <button onClick={handleBackspace} className="h-16 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+                        <Delete size={24} className="text-gray-600" />
+                    </button>
+                </div>
+            </div>
+            <style>{`
+              @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+              }
+              .animate-shake {
+                animation: shake 0.5s ease-in-out;
+              }
+            `}</style>
+        </div>
+    );
+};
+
+interface LoginScreenProps {
+    onLogin: (waiter: Waiter) => void;
+}
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+    const [selectedWaiter, setSelectedWaiter] = useState<Waiter | null>(null);
+    const [waiters, setWaiters] = useState<Waiter[]>([]);
+
+    useEffect(() => {
+        api.getWaiters().then(setWaiters);
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+            {selectedWaiter && (
+                <PinModal 
+                    waiter={selectedWaiter}
+                    onClose={() => setSelectedWaiter(null)}
+                    onLoginSuccess={onLogin}
+                />
+            )}
+            <h1 className="text-4xl font-extrabold text-gray-800 mb-2">Bienvenido</h1>
+            <p className="text-lg text-gray-500 mb-8">Selecciona tu usuario para continuar</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
+                {waiters.map(waiter => (
+                    <button
+                        key={waiter.id}
+                        onClick={() => setSelectedWaiter(waiter)}
+                        className="group aspect-square bg-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-3 border-2 border-transparent hover:border-blue-500"
+                    >
+                        <div className="bg-blue-100 p-5 rounded-full group-hover:bg-blue-200 transition-colors">
+                            <User size={40} className="text-blue-600" />
+                        </div>
+                        <span className="text-xl font-bold text-gray-800">{waiter.name}</span>
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
+// --- MODAL COMPONENTS ---
+
+interface SauceSelectionModalProps {
+  isOpen: boolean;
+  product: Product | null;
+  onClose: () => void;
+  onConfirm: (notes: string) => void;
+}
+
+const SauceSelectionModal: React.FC<SauceSelectionModalProps> = ({ isOpen, product, onClose, onConfirm }) => {
+  const [selectedSauces, setSelectedSauces] = useState<string[]>([]);
+  const [isCombined, setIsCombined] = useState(false);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setSelectedSauces([]);
+      setIsCombined(false);
+    }
+  }, [isOpen]);
+
+  const handleSauceClick = (sauce: string) => {
+    setSelectedSauces(prev => {
+      if (prev.includes(sauce)) {
+        return prev.filter(s => s !== sauce);
+      }
+      if (!isCombined) {
+        return [sauce];
+      }
+      if (prev.length < 2) {
+        return [...prev, sauce];
+      }
+      return prev;
+    });
+  };
+  
+  const handleConfirm = () => {
+    if (selectedSauces.length === 0) return;
+    let notes = '';
+    if (isCombined) {
+      notes = `Combinado: ${selectedSauces.join(', ')}`;
+    } else {
+      notes = `Salsa: ${selectedSauces[0]}`;
+    }
+    onConfirm(notes);
+  };
+  
+  const maxSauces = isCombined ? 2 : 1;
+  const canConfirm = selectedSauces.length > 0 && (!isCombined || selectedSauces.length === 2);
+
+  if (!isOpen || !product) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-slide-up">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900">Elige la Salsa</h3>
+          <button onClick={onClose} className="text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <p className="text-gray-600 mb-4">Para: <span className="font-bold">{product.name}</span></p>
+
+        <div className="flex items-center justify-center gap-4 mb-4 bg-gray-100 p-2 rounded-lg">
+            <span className="font-medium">Una Salsa</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={isCombined} onChange={() => { setIsCombined(p => !p); setSelectedSauces([]); }} className="sr-only peer" />
+              <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            </label>
+            <span className="font-medium">Combinado (2 Salsas)</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {SAUCES.map(sauce => {
+            const isSelected = selectedSauces.includes(sauce);
+            const isDisabled = !isSelected && selectedSauces.length >= maxSauces;
+            return (
+              <button
+                key={sauce}
+                onClick={() => handleSauceClick(sauce)}
+                disabled={isDisabled}
+                className={`p-4 rounded-lg font-bold text-center transition-all border-2 ${
+                  isSelected 
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
+                    : 'bg-white hover:bg-gray-50 border-gray-200'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {sauce}
+              </button>
+            )
+          })}
+        </div>
+        
+        <button onClick={handleConfirm} disabled={!canConfirm} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-green-200 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            Confirmar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+interface IngredientCustomizationModalProps {
+  isOpen: boolean;
+  product: Product | null;
+  onClose: () => void;
+  onConfirm: (notes: string) => void;
+}
+
+const IngredientCustomizationModal: React.FC<IngredientCustomizationModalProps> = ({ isOpen, product, onClose, onConfirm }) => {
+  type Step = 'initial' | 'without' | 'with';
+  const [step, setStep] = useState<Step>('initial');
+  const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
+  const [additionalNote, setAdditionalNote] = useState('');
+
+  const productSpecificIngredients = useMemo(() => {
+    if (product?.category === 'Hamburguesas') return HAMBURGER_INGREDIENTS;
+    if (product?.category === 'Hotdogs') return HOTDOG_INGREDIENTS;
+    return [];
+  }, [product]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => {
+        setStep('initial');
+        setSelectedIngredients(new Set());
+        setAdditionalNote('');
+      }, 200); // Reset after closing animation
+    }
+  }, [isOpen]);
+
+  const handleIngredientToggle = (ingredient: string) => {
+    setSelectedIngredients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(ingredient)) {
+        newSet.delete(ingredient);
+      } else {
+        newSet.add(ingredient);
+      }
+      return newSet;
+    });
+  };
+
+  const handleConfirmSelection = () => {
+    const notesParts: string[] = [];
+
+    if (selectedIngredients.size > 0) {
+        const prefix = step === 'without' ? 'Sin: ' : 'Con: ';
+        notesParts.push(prefix + Array.from(selectedIngredients).join(', '));
+    }
+
+    if (additionalNote.trim()) {
+        notesParts.push(`Nota: ${additionalNote.trim()}`);
+    }
+    
+    onConfirm(notesParts.join('. '));
+  };
+
+  if (!isOpen || !product) return null;
+
+  const renderInitialStep = () => {
+    const handleQuickConfirm = (baseNote: 'Con todo' | 'Sin nada') => {
+        const notesParts: string[] = [baseNote];
+        if (additionalNote.trim()) {
+            notesParts.push(`Nota: ${additionalNote.trim()}`);
+        }
+        onConfirm(notesParts.join('. '));
+    };
+
+    return (
+        <>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <button onClick={() => handleQuickConfirm('Con todo')} className="p-6 rounded-lg font-bold text-center transition-all border-2 bg-green-50 hover:bg-green-100 border-green-200 text-green-800">Con Todo</button>
+            <button onClick={() => handleQuickConfirm('Sin nada')} className="p-6 rounded-lg font-bold text-center transition-all border-2 bg-red-50 hover:bg-red-100 border-red-200 text-red-800">Sin Nada</button>
+            <button onClick={() => setStep('without')} className="p-6 rounded-lg font-bold text-center transition-all border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-yellow-800">Quitar Ingredientes</button>
+            <button onClick={() => setStep('with')} className="p-6 rounded-lg font-bold text-center transition-all border-2 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800">Agregar Ingredientes</button>
+          </div>
+          <div className="relative">
+            <MessageSquareQuote className="absolute left-3 top-3 text-gray-400" size={20} />
+            <textarea
+              value={additionalNote}
+              onChange={(e) => setAdditionalNote(e.target.value)}
+              placeholder="Nota adicional para cocina..."
+              rows={2}
+              className="w-full pl-10 pr-4 py-2 bg-gray-100 border-2 border-transparent focus:bg-white focus:border-blue-400 rounded-lg transition-all outline-none resize-none"
+            />
+          </div>
+        </>
+    );
+  };
+
+  const renderIngredientSelection = () => {
+    const listToRender = step === 'without' ? productSpecificIngredients : CUSTOMIZABLE_INGREDIENTS;
+    const canConfirm = selectedIngredients.size > 0 || additionalNote.trim() !== '';
+
+    return (
+      <div>
+        <button onClick={() => setStep('initial')} className="flex items-center text-sm text-gray-500 hover:text-gray-800 mb-4 font-semibold">
+          <ArrowLeft size={16} className="mr-1" />
+          Volver
+        </button>
+        <h4 className="text-lg font-bold text-gray-800 mb-4 text-center">
+          {step === 'without' ? 'Selecciona qué quitar' : 'Selecciona qué agregar'}
+        </h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-h-48 overflow-y-auto p-1">
+          {listToRender.map(ingredient => {
+            const isSelected = selectedIngredients.has(ingredient);
+            return (
+              <button
+                key={ingredient}
+                onClick={() => handleIngredientToggle(ingredient)}
+                className={`p-3 rounded-lg font-bold text-center transition-all border-2 ${
+                  isSelected 
+                    ? step === 'without'
+                        ? 'bg-red-600 text-white border-red-600 shadow-md'
+                        : 'bg-blue-600 text-white border-blue-600 shadow-md'
+                    : 'bg-white hover:bg-gray-50 border-gray-200'
+                }`}
+              >
+                {ingredient}
+              </button>
+            )
+          })}
+        </div>
+        
+        <div className="relative mb-4">
+            <MessageSquareQuote className="absolute left-3 top-3 text-gray-400" size={20} />
+            <textarea
+              value={additionalNote}
+              onChange={(e) => setAdditionalNote(e.target.value)}
+              placeholder="Nota adicional para cocina..."
+              rows={2}
+              className="w-full pl-10 pr-4 py-2 bg-gray-100 border-2 border-transparent focus:bg-white focus:border-blue-400 rounded-lg transition-all outline-none resize-none"
+            />
+        </div>
+
+        <button 
+            onClick={handleConfirmSelection} 
+            disabled={!canConfirm}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-green-200 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            Confirmar Personalización
+        </button>
+      </div>
+    );
+  }
+
+  return (
+     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-slide-up">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900">Personalizar {product.category.slice(0, -1)}</h3>
+          <button onClick={onClose} className="text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <p className="text-gray-600 mb-6">Para: <span className="font-bold">{product.name}</span></p>
+        
+        {step === 'initial' ? renderInitialStep() : renderIngredientSelection()}
+
+      </div>
+    </div>
+  )
+};
+
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  order: Order | null;
+  onConfirm: (amountReceived: string) => void;
+}
+
+const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, order, onConfirm }) => {
+  const [amountReceived, setAmountReceived] = useState('');
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setAmountReceived('');
+    }
+  }, [isOpen]);
+
+  const change = useMemo(() => {
+    if (!order) return 0;
+    const received = parseFloat(amountReceived);
+    return isNaN(received) ? 0 : received - order.total;
+  }, [amountReceived, order]);
+
+  if (!isOpen || !order) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-5">
+                <h3 className="text-xl font-bold text-gray-900">Procesar Pago</h3>
+                <button onClick={onClose} className="text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
+                    <X size={20} />
+                </button>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center mb-4">
+                <p className="text-sm text-blue-700 font-medium">Total a Pagar</p>
+                <p className="text-4xl font-extrabold text-blue-900">${order.total.toFixed(2)}</p>
+            </div>
+
+            <div className="relative mb-4">
+                <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                    type="number"
+                    value={amountReceived}
+                    onChange={e => setAmountReceived(e.target.value)}
+                    placeholder="Monto Recibido"
+                    className="w-full pl-12 pr-4 py-4 bg-gray-100 border-2 border-transparent text-lg font-bold text-center focus:bg-white focus:border-green-400 rounded-lg transition-all outline-none"
+                    autoFocus
+                />
+            </div>
+
+             <div className="bg-green-50 border border-green-200 p-4 rounded-lg text-center mb-6">
+                <p className="text-sm text-green-700 font-medium">Cambio</p>
+                <p className={`text-4xl font-extrabold ${change < 0 ? 'text-red-500' : 'text-green-800'}`}>
+                    ${change < 0 ? '---' : change.toFixed(2)}
+                </p>
+            </div>
+
+            <button 
+                onClick={() => onConfirm(amountReceived)} 
+                disabled={change < 0 || !amountReceived} 
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg transition-all shadow-lg shadow-green-200 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Confirmar Pago
+            </button>
+        </div>
+    </div>
+  );
+};
+
+interface TakeawayNameModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onCreate: (name: string) => void;
+}
+
+const TakeawayNameModal: React.FC<TakeawayNameModalProps> = ({ isOpen, onClose, onCreate }) => {
+    const [name, setName] = useState('');
+
+    const handleCreate = () => {
+        if (name.trim()) {
+            onCreate(name.trim());
+            setName('');
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Nuevo Pedido Para Llevar</h3>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Nombre del Cliente"
+                    className="w-full px-4 py-3 bg-gray-100 border-2 border-transparent focus:bg-white focus:border-blue-400 rounded-lg transition-all outline-none mb-4"
+                    autoFocus
+                    onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                    <button onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg transition-colors">Cancelar</button>
+                    <button onClick={handleCreate} disabled={!name.trim()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50">Crear Pedido</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// --- MAIN APP COMPONENT ---
+
+// CORRECCIÓN 3: Renombramos App a WaiterPOS
+const WaiterPOS: React.FC = () => {
+  // --- STATE ---
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<Waiter | null>(null);
+  const [view, setView] = useState<ViewMode>(ViewMode.LOGIN);
+  const [tables, setTables] = useState<Table[]>([]);
+  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
+
+  // Modals State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isTakeawayNameModalOpen, setIsTakeawayNameModalOpen] = useState(false);
+  const [isSauceModalOpen, setIsSauceModalOpen] = useState(false);
+  const [productForSauceSelection, setProductForSauceSelection] = useState<Product | null>(null);
+  const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
+  const [productForCustomization, setProductForCustomization] = useState<Product | null>(null);
+  
+  // --- DATA LOADING AND PERSISTENCE ---
+  useEffect(() => {
+    // Carga inicial de datos
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            const [tablesData, ordersData, historyData] = await Promise.all([
+                api.getTables(),
+                api.getActiveOrders(),
+                api.getOrderHistory(),
+            ]);
+            setTables(tablesData);
+            setActiveOrders(ordersData);
+            setOrderHistory(historyData);
+        } catch (error) {
+            console.error("Error loading initial data", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    loadData();
+  }, []);
+  
+  // Persist data on changes
+  useEffect(() => { if(!isLoading) api.saveTables(tables); }, [tables, isLoading]);
+  
+  // --- DERIVED STATE ---
+  const currentOrder = activeOrders.find(o => o.id === currentOrderId) || null;
+
+  // --- AUTH ---
+  const handleLogin = (waiter: Waiter) => {
+    setCurrentUser(waiter);
+    setView(ViewMode.EMPLOYEE_SELECT);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setView(ViewMode.LOGIN);
+  };
+
+  // --- HELPERS ---
+  const getOrderDetails = (order: Order | null): string => {
+    if (!order) return '';
+    if (order.type === 'DINE_IN') {
+      return `Mesa ${order.tableId}`;
+    }
+    return order.customerName || 'Pedido para llevar';
+  };
+
+  // --- NAVIGATION ---
+  const navigate = (newView: ViewMode) => {
+    setCurrentOrderId(null);
+    setView(newView);
+  };
+
+  // --- ORDER LIFECYCLE ---
+  const updateCurrentOrder = (updatedOrder: Order) => {
+    setActiveOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+    // Guardamos en servidor (opcional en tiempo real)
+    api.createOrder(updatedOrder).catch(e => console.error("Error saving order update", e));
+  };
+
+  const saveAndExitOrderPad = () => {
+    if (!currentOrder) return;
+    // Asegurar guardado en servidor al salir
+    api.createOrder(currentOrder);
+    
+    const viewToReturn = currentOrder.type === 'DINE_IN' ? ViewMode.TABLES : ViewMode.TAKEAWAY;
+    navigate(viewToReturn);
+  };
+
+  const handlePayment = () => {
+    if (!currentOrder || currentOrder.items.length === 0) return;
+    setIsPaymentModalOpen(true);
+  };
+
+  const confirmPayment = (amountReceivedStr: string) => {
+    if (!currentOrder) return;
+    const received = parseFloat(amountReceivedStr);
+    if (isNaN(received) || received < currentOrder.total) {
+      alert("El monto recibido es insuficiente.");
+      return;
+    }
+
+    if (currentOrder.type === 'DINE_IN') {
+        const completedOrder: Order = { ...currentOrder, status: 'COMPLETED', paymentStatus: 'PAID' };
+        
+        // CORRECCIÓN: Guardamos completado en historial y servidor
+        setOrderHistory(prev => [...prev, completedOrder]);
+        setActiveOrders(prev => prev.filter(o => o.id !== currentOrderId));
+        
+        // Actualizamos servidor:
+        // Nota: Si tu API requiere un endpoint especifico para pagar, úsalo. 
+        // Por ahora simulamos completando y limpiando mesa.
+        api.createOrder(completedOrder); // Guardar estado final
+
+        if (currentOrder.tableId) {
+            setTables(prev => prev.map(t => 
+                t.id === currentOrder.tableId 
+                ? { ...t, status: 'AVAILABLE', currentOrderId: null, waiterName: undefined } 
+                : t
+            ));
+        }
+    } else { // It's a TAKEAWAY order
+        setActiveOrders(prev => prev.map(o => 
+            o.id === currentOrderId 
+            ? { ...o, paymentStatus: 'PAID' } 
+            : o
+        ));
+        // Guardar estado pagado en servidor
+        const updatedOrder = { ...currentOrder, paymentStatus: 'PAID' as const };
+        api.createOrder(updatedOrder);
+    }
+    
+    setIsPaymentModalOpen(false);
+    navigate(currentOrder.type === 'DINE_IN' ? ViewMode.TABLES : ViewMode.TAKEAWAY);
+  };
+
+  const backFromOrderPad = () => {
+    if (!currentOrder) return;
+
+    if (currentOrder.items.length === 0) {
+      // Si está vacía y salimos, la borramos del estado local y servidor
+      setActiveOrders(prev => prev.filter(o => o.id !== currentOrderId));
+      api.deleteOrder(currentOrder.id).catch(err => console.error("Error deleting empty order", err));
+
+      if (currentOrder.type === 'DINE_IN' && currentOrder.tableId) {
+        setTables(prev => prev.map(t =>
+          t.id === currentOrder.tableId ? { ...t, status: 'AVAILABLE', currentOrderId: null, waiterName: undefined } : t
+        ));
+      }
+    } else {
+        // Si tiene items, guardamos antes de salir
+        api.createOrder(currentOrder);
+    }
+    
+    saveAndExitOrderPad();
+  };
+  
+  const completeTakeawayOrder = (orderId: string) => {
+    const orderToComplete = activeOrders.find(o => o.id === orderId);
+  
+    if (!orderToComplete) {
+      console.error(`Order with ID ${orderId} not found in active orders.`);
+      return;
+    }
+  
+    const completedOrder: Order = { ...orderToComplete, status: 'COMPLETED' };
+  
+    setOrderHistory(currentHistory => [...currentHistory, completedOrder]);
+    
+    // Guardar en servidor
+    api.createOrder(completedOrder);
+
+    setActiveOrders(currentActiveOrders =>
+      currentActiveOrders.filter(o => o.id !== orderId)
+    );
+  };
+    
+  const handleDeleteActiveOrder = (orderId: string) => {
+    if (window.confirm('¿Seguro que quieres eliminar este pedido? Esta acción no se puede deshacer.')) {
+        setActiveOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+        // Borrar del servidor
+        api.deleteOrder(orderId).catch(err => console.error("Error deleting order", err));
+    }
+  };
+  
+  // --- MODAL HANDLERS ---
+  const handleRequestSauceSelection = (product: Product) => {
+    setProductForSauceSelection(product);
+    setIsSauceModalOpen(true);
+  };
+  
+  const handleRequestCustomization = (product: Product) => {
+    setProductForCustomization(product);
+    setIsCustomizationModalOpen(true);
+  };
+  
+  const addCustomizedItemToOrder = (product: Product, notes: string) => {
+    if (!currentOrder) return;
+    
+    const itemWithNotes = { ...product, quantity: 1, notes };
+    const existingItemIndex = currentOrder.items.findIndex(
+      i => i.id === itemWithNotes.id && i.notes === itemWithNotes.notes
+    );
+    let newItems = [...currentOrder.items];
+    if (existingItemIndex > -1) {
+      newItems[existingItemIndex].quantity += 1;
+    } else {
+      newItems.push(itemWithNotes);
+    }
+    const total = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    updateCurrentOrder({ ...currentOrder, items: newItems, total });
+  };
+
+  const confirmSauceSelection = (notes: string) => {
+    if (!productForSauceSelection) return;
+    addCustomizedItemToOrder(productForSauceSelection, notes);
+    setProductForSauceSelection(null);
+    setIsSauceModalOpen(false);
+  };
+  
+  const confirmCustomization = (notes: string) => {
+    if (!productForCustomization) return;
+    addCustomizedItemToOrder(productForCustomization, notes);
+    setProductForCustomization(null);
+    setIsCustomizationModalOpen(false);
+  };
+
+  // --- EVENT HANDLERS ---
+  const handleTableClick = (table: Table) => {
+    if (!currentUser) return;
+    let orderIdToOpen: string;
+
+    if (table.status === 'OCCUPIED' && table.currentOrderId) {
+      orderIdToOpen = table.currentOrderId;
+    } else {
+      const newOrder: Order = {
+        id: `order_${Date.now()}`,
+        type: 'DINE_IN',
+        items: [],
+        total: 0,
+        status: 'OPEN',
+        paymentStatus: 'UNPAID',
+        tableId: table.id,
+        createdAt: Date.now(),
+        waiterName: currentUser.name,
+      };
+      setActiveOrders(prev => [...prev, newOrder]);
+      setTables(prev => prev.map(t => t.id === table.id ? { ...t, status: 'OCCUPIED', currentOrderId: newOrder.id, waiterName: currentUser.name } : t));
+      
+      // Creamos la orden en el servidor inmediatamente
+      api.createOrder(newOrder);
+      
+      orderIdToOpen = newOrder.id;
+    }
+    
+    setCurrentOrderId(orderIdToOpen);
+    setView(ViewMode.ORDER_PAD);
+  };
+
+  const handleTakeawayClick = (order: Order) => {
+    setCurrentOrderId(order.id);
+    setView(ViewMode.ORDER_PAD);
+  };
+
+  const handleNewTakeaway = () => {
+    setIsTakeawayNameModalOpen(true);
+  };
+
+  const createNewTakeawayOrder = (name: string) => {
+    if (!currentUser) return;
+    const newOrder: Order = {
+      id: `order_${Date.now()}`,
+      type: 'TAKEAWAY',
+      items: [],
+      total: 0,
+      status: 'OPEN',
+      paymentStatus: 'UNPAID',
+      customerName: name,
+      createdAt: Date.now(),
+      waiterName: currentUser.name,
+    };
+    setActiveOrders(prev => [...prev, newOrder]);
+    setCurrentOrderId(newOrder.id);
+    
+    // Crear en servidor
+    api.createOrder(newOrder);
+
+    setIsTakeawayNameModalOpen(false);
+    setView(ViewMode.ORDER_PAD);
+  };
+
+
+  // --- RENDER VIEWS ---
+  if (isLoading) {
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-gray-500">
+            <LoaderCircle size={48} className="animate-spin mb-4" />
+            <p className="text-lg font-semibold">Cargando datos...</p>
+        </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  const renderEmployeeSelect = () => (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-white p-4 shadow-sm flex items-center justify-between relative">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <User size={16} /> 
+            <span className="font-bold">{currentUser.name}</span>
+          </div>
+          <span className="font-bold text-lg text-gray-700 absolute left-1/2 -translate-x-1/2">Modo Mesero</span>
+          <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-red-500 font-semibold hover:text-red-700">
+            <LogOut size={16} />
+            Salir
+          </button>
+      </header>
+      <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 p-8">
+        <button 
+          onClick={() => setView(ViewMode.TABLES)}
+          className="group w-full max-w-sm aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-orange-500"
+        >
+          <div className="bg-orange-100 p-8 rounded-full group-hover:bg-orange-200 transition-colors">
+            <Utensils size={64} className="text-orange-600" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-800">Para Aquí</h2>
+            <p className="text-gray-500 mt-2">Seleccionar mesa</p>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setView(ViewMode.TAKEAWAY)}
+          className="group w-full max-w-sm aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-purple-500"
+        >
+          <div className="bg-purple-100 p-8 rounded-full group-hover:bg-purple-200 transition-colors">
+            <ShoppingBag size={64} className="text-purple-600" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-800">Para Llevar</h2>
+            <p className="text-gray-500 mt-2">Pedidos por nombre</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderTableGrid = () => (
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+       <header className="bg-white p-4 shadow-sm flex items-center justify-between sticky top-0 z-10">
+         <button onClick={() => setView(ViewMode.EMPLOYEE_SELECT)} className="flex items-center text-gray-600 hover:text-gray-900 font-medium">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Atrás
+          </button>
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <LayoutGrid className="w-5 h-5"/>
+            Selección de Mesa
+          </h2>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <User size={16} /> 
+            <span className="font-bold">{currentUser.name}</span>
+          </div>
+      </header>
+      
+      <div className="p-4 md:p-8 flex-1 overflow-y-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+          {tables.map(table => {
+            const isOccupied = table.status === 'OCCUPIED';
+            const order = isOccupied && table.currentOrderId ? activeOrders.find(o => o.id === table.currentOrderId) : null;
+            
+            return (
+              <button
+                key={table.id}
+                onClick={() => handleTableClick(table)}
+                className={`
+                  relative aspect-square rounded-2xl p-4 flex flex-col items-center justify-center shadow-md transition-all active:scale-95
+                  ${isOccupied 
+                    ? 'bg-red-50 border-2 border-red-500' 
+                    : 'bg-white border-2 border-green-400 hover:bg-green-50'}
+                `}
+              >
+                {order && (
+                    <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full font-semibold flex items-center gap-1">
+                        <User size={12}/>
+                        {order.waiterName}
+                    </div>
+                )}
+                <div className={`
+                    w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 text-white shadow-sm
+                    ${isOccupied ? 'bg-red-500' : 'bg-green-500'}
+                `}>
+                    <span className="text-xl md:text-2xl font-bold">{table.id}</span>
+                </div>
+                <span className={`font-bold text-base md:text-lg ${isOccupied ? 'text-red-700' : 'text-gray-700'}`}>
+                   {table.label}
+                </span>
+                <span className={`text-sm font-medium mt-1 ${isOccupied ? 'text-red-500' : 'text-green-600'}`}>
+                    {isOccupied ? 'PENDIENTE' : 'DISPONIBLE'}
+                </span>
+                {isOccupied && order && (
+                   <span className="mt-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">
+                       ${order.total.toFixed(0)}
+                   </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTakeawayList = () => {
+    const takeawayOrders = activeOrders.filter(o => o.type === 'TAKEAWAY');
+
+    return (
+      <div className="h-full bg-gray-100 flex flex-col">
+         <header className="bg-white p-4 shadow-sm flex items-center justify-between sticky top-0 z-10">
+         <button onClick={() => setView(ViewMode.EMPLOYEE_SELECT)} className="flex items-center text-gray-600 hover:text-gray-900 font-medium">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Atrás
+          </button>
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5"/>
+            Para Llevar
+          </h2>
+           <button 
+            onClick={handleNewTakeaway}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-sm active:translate-y-0.5"
+           >
+            <PlusCircle size={18} />
+            <span className="hidden sm:inline">Nuevo</span>
+           </button>
+        </header>
+
+        <div className="flex-1 p-4 md:p-6 max-w-4xl mx-auto w-full overflow-y-auto">
+            {takeawayOrders.length === 0 ? (
+                <div className="h-64 flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-300 rounded-2xl">
+                    <ShoppingBag size={48} className="mb-4 opacity-50" />
+                    <p className="text-lg">No hay pedidos activos</p>
+                    <button onClick={handleNewTakeaway} className="mt-4 text-blue-600 font-bold hover:underline">Crear uno nuevo</button>
+                </div>
+            ) : (
+                <div className="grid gap-4">
+                    {takeawayOrders.map(order => (
+                        <div key={order.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between text-left hover:border-blue-500 hover:shadow-md transition-all gap-4">
+                            <div onClick={() => handleTakeawayClick(order)} className="flex items-center gap-4 cursor-pointer flex-1">
+                                <div className="bg-purple-100 p-3 rounded-full hidden sm:flex">
+                                    <Clock className="text-purple-600" size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-gray-800">{getOrderDetails(order)}</h3>
+                                    <p className="text-sm text-gray-500">{order.items.length} productos • Tomado por <span className="font-semibold">{order.waiterName}</span></p>
+                                </div>
+                            </div>
+                            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-4">
+                                <div className="text-right">
+                                  <span className="font-bold text-xl text-gray-800">${order.total.toFixed(2)}</span>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-bold block mt-1 ${
+                                      order.paymentStatus === 'PAID' 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                    }`}>
+                                        {order.paymentStatus === 'PAID' ? 'PAGADO' : 'NO PAGADO'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {order.paymentStatus === 'PAID' ? (
+                                      <button 
+                                          onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (window.confirm('¿Seguro que quieres marcar este pedido como entregado?')) {
+                                                  completeTakeawayOrder(order.id);
+                                              }
+                                          }}
+                                          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-3 rounded-lg transition-colors shadow-sm"
+                                      >
+                                          <CheckCheck size={18} />
+                                          Entregar
+                                      </button>
+                                  ) : (
+                                      <button onClick={() => handleTakeawayClick(order)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-medium transition-colors">
+                                          Pagar / Editar
+                                      </button>
+                                  )}
+                                  <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteActiveOrder(order.id);
+                                    }}
+                                    className="p-3.5 bg-red-100 hover:bg-red-200 text-red-600 transition-colors rounded-lg"
+                                    aria-label="Eliminar Pedido"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderOrderPad = () => {
+    if (!currentOrder) return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+            <p className="text-gray-600">No se encontró el pedido. Por favor, vuelve e inténtalo de nuevo.</p>
+             <button onClick={() => setView(ViewMode.EMPLOYEE_SELECT)} className="mt-6 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Volver al inicio</button>
+          </div>
+        </div>
+      );
+
+    let title = "";
+    if (currentOrder.type === 'DINE_IN') {
+        const table = tables.find(t => t.id === currentOrder.tableId);
+        title = table ? table.label : 'Mesa';
+    } else {
+        title = `Cliente: ${getOrderDetails(currentOrder)}`;
+    }
+
+    return (
+      <OrderPad
+        title={title}
+        waiterName={currentUser.name}
+        currentOrder={currentOrder}
+        onUpdateOrder={updateCurrentOrder}
+        onSave={saveAndExitOrderPad}
+        onFinish={handlePayment}
+        onBack={backFromOrderPad}
+        onRequestSauceSelection={handleRequestSauceSelection}
+        onRequestCustomization={handleRequestCustomization}
+      />
+    );
+  };
+
+  const renderCurrentView = () => {
+    switch (view) {
+      case ViewMode.EMPLOYEE_SELECT: return renderEmployeeSelect();
+      case ViewMode.TABLES: return renderTableGrid();
+      case ViewMode.TAKEAWAY: return renderTakeawayList();
+      case ViewMode.ORDER_PAD: return renderOrderPad();
+      default: return <LoginScreen onLogin={handleLogin} />;
+    }
+  }
+
+  return (
+    <div className="h-screen w-screen overflow-hidden">
+      <TakeawayNameModal
+        isOpen={isTakeawayNameModalOpen}
+        onClose={() => setIsTakeawayNameModalOpen(false)}
+        onCreate={createNewTakeawayOrder}
+      />
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onConfirm={confirmPayment}
+        order={currentOrder}
+      />
+      <SauceSelectionModal
+        isOpen={isSauceModalOpen}
+        onClose={() => { setIsSauceModalOpen(false); setProductForSauceSelection(null); }}
+        onConfirm={confirmSauceSelection}
+        product={productForSauceSelection}
+      />
+      <IngredientCustomizationModal
+        isOpen={isCustomizationModalOpen}
+        onClose={() => { setIsCustomizationModalOpen(false); setProductForCustomization(null); }}
+        onConfirm={confirmCustomization}
+        product={productForCustomization}
+      />
+      {renderCurrentView()}
+    </div>
+  );
+};
+
+// CORRECCIÓN 3: Exportamos como WaiterPOS (no App)
+export default WaiterPOS; 
+
+
+============================================================
+RUTA: .\services\api.ts
+============================================================
+import { Order, Table, Waiter } from '../types';
+import { INITIAL_TABLES, WAITERS } from '../constants';
+
+// ⚠️ AJUSTA TU IP AQUÍ SI ES NECESARIO
+const API_URL = 'http://localhost:8000';
+
+export const api = {
+    // --- 1. MESEROS Y MESAS ---
+    getWaiters: async (): Promise<Waiter[]> => {
+        return Promise.resolve(WAITERS);
+    },
+
+    getTables: async (): Promise<Table[]> => {
+        const saved = localStorage.getItem('pos_tables');
+        return saved ? JSON.parse(saved) : INITIAL_TABLES;
+    },
+
+    saveTables: async (tables: Table[]): Promise<void> => {
+        localStorage.setItem('pos_tables', JSON.stringify(tables));
+        return Promise.resolve();
+    },
+
+    // --- 2. CONEXIÓN CON SERVIDOR PYTHON ---
+
+    // A) Obtener activos (Cocina)
+    getActiveOrders: async (): Promise<Order[]> => {
+        try {
+            const response = await fetch(`${API_URL}/orders`);
+            if (!response.ok) throw new Error('Error al conectar con cocina');
+            return await response.json();
+        } catch (error) {
+            console.error("❌ Error obteniendo pedidos:", error);
+            return [];
+        }
+    },
+
+    // B) Obtener Historial (Admin) - NOMBRE NUEVO
+    getTodaysOrders: async (): Promise<Order[]> => {
+        try {
+            const response = await fetch(`${API_URL}/orders/all`);
+            if (!response.ok) throw new Error('Error al obtener historial');
+            return await response.json();
+        } catch (error) {
+            console.error("❌ Error historial:", error);
+            return [];
+        }
+    },
+
+    // C) Obtener Historial (App.tsx) - ¡AQUÍ ESTÁ LA CORRECCIÓN! 🚑
+    // Esta función hace lo mismo que la de arriba, pero tiene el nombre que pide tu error.
+    getOrderHistory: async (): Promise<Order[]> => {
+        return api.getTodaysOrders(); 
+    },
+
+    // D) Crear Pedido (Mesero)
+    createOrder: async (order: Order): Promise<void> => {
+        try {
+            const response = await fetch(`${API_URL}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order),
+            });
+            if (!response.ok) throw new Error('Error en el servidor');
+        } catch (error) {
+            console.error("❌ Error enviando pedido:", error);
+            throw error;
+        }
+    },
+
+    // E) Completar (Chef)
+    completeKitchenOrder: async (orderId: string): Promise<void> => {
+        try {
+            await fetch(`${API_URL}/orders/${orderId}/complete`, { method: 'POST' });
+        } catch (error) {
+            console.error("Error completando:", error);
+        }
+    },
+
+    // F) Eliminar (Admin)
+    deleteOrder: async (orderId: string): Promise<void> => {
+        try {
+            await fetch(`${API_URL}/orders/${orderId}`, { method: 'DELETE' });
+        } catch (error) {
+            console.error("Error eliminando:", error);
+            throw error;
+        }
+    },
+    
+    // G) Estimar Tiempo
+    setKitchenEstimate: async (orderId: string, minutes: number): Promise<void> => {
+        console.log(`Estimación: ${minutes} min`);
+        return Promise.resolve();
+    },
+
+    // H) Cerrar Día
+    closeDay: async (): Promise<void> => {
+        try {
+            await fetch(`${API_URL}/close-day`, { method: 'POST' });
+        } catch (error) {
+            console.error("Error cerrando día:", error);
+            throw error;
+        }
+    }
+};

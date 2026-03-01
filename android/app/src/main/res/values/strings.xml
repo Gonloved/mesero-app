@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mesero</string>
+    <string name="title_activity_main">Mesero</string>
+    <string name="package_name">com.turestaurante.mesero</string>
+    <string name="custom_url_scheme">com.turestaurante.mesero</string>
+</resources>

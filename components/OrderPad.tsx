@@ -42,77 +42,86 @@ interface TicketContentProps {
   onFinish: () => void;
 }
 
-const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuantity, onSave, onFinish }) => (
-  <>
-    {/* Order Items List */}
-    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
-      {currentOrder.items.length === 0 ? (
-        <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 space-y-4">
-          <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-              <UtensilsCrossed size={32} />
+const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuantity, onSave, onFinish }) => {
+  
+  // 🔥 AQUÍ CREAMOS LA RED DE SEGURIDAD
+  const handleConfirmSave = () => {
+    if (window.confirm('¿Seguro que quieres pasar el pedido a cocina?')) {
+        onSave();
+    }
+  };
+
+  return (
+    <>
+      {/* Order Items List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+        {currentOrder.items.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 space-y-4">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                <UtensilsCrossed size={32} />
+            </div>
+            <p className="font-medium text-center px-8">Selecciona productos del menú para comenzar el pedido</p>
           </div>
-          <p className="font-medium text-center px-8">Selecciona productos del menú para comenzar el pedido</p>
+        ) : (
+          currentOrder.items.map(item => (
+            <div key={`${item.id}-${item.notes}`} className="group flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md">
+              <div className="p-3 flex justify-between items-start">
+                  <div className="flex-1 pr-2">
+                      <p className="font-bold text-gray-800 leading-tight text-sm">{item.name}</p>
+                      {item.notes && <p className="text-xs text-blue-600 font-semibold mt-1">{item.notes}</p>}
+                      <p className="text-xs text-gray-500 mt-1 font-mono">${item.price.toFixed(2)}</p>
+                  </div>
+                  <span className="font-bold text-gray-900 text-lg">${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+              <div className="bg-gray-50 p-2 flex items-center justify-between border-t border-gray-100">
+                  <button 
+                      onClick={() => updateQuantity(item.id, -1, item.notes)}
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                  >
+                      {item.quantity === 1 ? <Trash2 size={16}/> : <Minus size={16}/>}
+                  </button>
+                  <span className="font-bold text-lg w-8 text-center text-slate-700">{item.quantity}</span>
+                  <button 
+                      onClick={() => updateQuantity(item.id, 1, item.notes)}
+                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-green-50 hover:text-green-600 hover:border-green-200 shadow-sm transition-colors"
+                  >
+                      <Plus size={16}/>
+                  </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Footer Totals & Actions */}
+      <div className="border-t border-gray-200 p-5 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10">
+        <div className="flex justify-between items-end mb-4">
+          <span className="text-gray-500 font-medium pb-1">Total a Pagar</span>
+          <span className="text-4xl font-extrabold text-slate-900">${currentOrder.total.toFixed(2)}</span>
         </div>
-      ) : (
-        currentOrder.items.map(item => (
-          <div key={`${item.id}-${item.notes}`} className="group flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md">
-            <div className="p-3 flex justify-between items-start">
-                <div className="flex-1 pr-2">
-                    {/* FIX: Removed redundant String() call. */}
-                    <p className="font-bold text-gray-800 leading-tight text-sm">{item.name}</p>
-                    {item.notes && <p className="text-xs text-blue-600 font-semibold mt-1">{item.notes}</p>}
-                    <p className="text-xs text-gray-500 mt-1 font-mono">${item.price.toFixed(2)}</p>
-                </div>
-                <span className="font-bold text-gray-900 text-lg">${(item.price * item.quantity).toFixed(2)}</span>
-            </div>
-            <div className="bg-gray-50 p-2 flex items-center justify-between border-t border-gray-100">
-                <button 
-                    onClick={() => updateQuantity(item.id, -1, item.notes)}
-                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
-                >
-                    {item.quantity === 1 ? <Trash2 size={16}/> : <Minus size={16}/>}
-                </button>
-                <span className="font-bold text-lg w-8 text-center text-slate-700">{item.quantity}</span>
-                <button 
-                    onClick={() => updateQuantity(item.id, 1, item.notes)}
-                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 flex items-center justify-center hover:bg-green-50 hover:text-green-600 hover:border-green-200 shadow-sm transition-colors"
-                >
-                    <Plus size={16}/>
-                </button>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
 
-    {/* Footer Totals & Actions */}
-    <div className="border-t border-gray-200 p-5 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10">
-      <div className="flex justify-between items-end mb-4">
-        <span className="text-gray-500 font-medium pb-1">Total a Pagar</span>
-        <span className="text-4xl font-extrabold text-slate-900">${currentOrder.total.toFixed(2)}</span>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={handleConfirmSave} // 🔥 AHORA APUNTA A NUESTRA FUNCIÓN
+            disabled={currentOrder.items.length === 0}
+            className="flex flex-col items-center justify-center bg-white border-2 border-amber-400 text-amber-600 hover:bg-amber-50 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+          >
+            <Save className="mb-1 w-5 h-5" />
+            <span className="text-sm">Guardar y Salir</span>
+          </button>
+          <button
+            onClick={onFinish}
+            disabled={currentOrder.items.length === 0}
+            className="flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+          >
+            <CheckCircle className="mb-1 w-5 h-5" />
+            <span className="text-sm">Cobrar</span>
+          </button>
+        </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={onSave}
-          disabled={currentOrder.items.length === 0}
-          className="flex flex-col items-center justify-center bg-white border-2 border-amber-400 text-amber-600 hover:bg-amber-50 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-        >
-          <Save className="mb-1 w-5 h-5" />
-          <span className="text-sm">Guardar y Salir</span>
-        </button>
-        <button
-          onClick={onFinish}
-          disabled={currentOrder.items.length === 0}
-          className="flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-green-200 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-        >
-          <CheckCircle className="mb-1 w-5 h-5" />
-          <span className="text-sm">Cobrar</span>
-        </button>
-      </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 
 export const OrderPad: React.FC<OrderPadProps> = ({ 

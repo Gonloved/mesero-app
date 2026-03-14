@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ViewMode, Table, Order, Waiter, Product, OrderItem } from '../types'; 
+import { ViewMode, Table, Order, Waiter, Product, OrderItem, Payment } from '../types'; 
+import WaiterHistory from './WaiterHistory'; // 🔥 Importamos la nueva pantalla
+import { ScrollText } from 'lucide-react'; // 🔥 Importamos un ícono de ticket/historial (asegúrate de que esté en tu lista de imports de lucide-react)
+import { App as CapacitorApp } from '@capacitor/app';
 import { 
   SAUCES, 
   HAMBURGER_INGREDIENTS, 
@@ -12,10 +15,11 @@ import {
 } from '../constants';
 import { api } from '../services/api';
 import { OrderPad } from './OrderPad'; 
+import PaymentModal from './PaymentModal'; // 🔥 AQUÍ IMPORTAMOS TU NUEVO COMPONENTE
 
 import { 
   Utensils, ShoppingBag, ArrowLeft, LayoutGrid, PlusCircle, Clock, 
-  X, Wallet, CheckCheck, Trash2, User, LogOut, Delete, LoaderCircle, MessageSquareQuote
+  X, CheckCheck, Trash2, User, LogOut, Delete, LoaderCircle, MessageSquareQuote
 } from 'lucide-react';
 
 // --- LOGIN COMPONENTS ---
@@ -41,6 +45,10 @@ const PinModal: React.FC<PinModalProps> = ({ waiter, onClose, onLoginSuccess }) 
         setError(false);
     };
 
+
+
+    
+
     useEffect(() => {
         if (pin.length === 4) {
             api.getWaiters().then(waiters => {
@@ -57,7 +65,22 @@ const PinModal: React.FC<PinModalProps> = ({ waiter, onClose, onLoginSuccess }) 
             });
         }
     }, [pin, waiter, onLoginSuccess]);
+ useEffect(() => {
+        const backButtonListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+            // Si el historial interno dice que hay una página anterior...
+            if (canGoBack) {
+                window.history.back(); // Te regresa a la pantalla anterior automáticamente
+            } else {
+                // Si ya estás en la pantalla principal y no hay a dónde volver, cierra la app
+                CapacitorApp.exitApp();
+            }
+        });
 
+        // Limpieza de memoria
+        return () => {
+            backButtonListener.then(listener => listener.remove());
+        };
+    }, []); // <-- Ya no dependemos de ninguna variable aquí
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xs p-6 text-center animate-slide-up">
@@ -165,6 +188,13 @@ const SauceSelectionModal: React.FC<SauceSelectionModalProps> = ({ isOpen, produ
       setIsCombined(false);
     }
   }, [isOpen]);
+
+
+
+
+
+
+
 
   const handleSauceClick = (sauce: string) => {
     setSelectedSauces(prev => {
@@ -435,85 +465,6 @@ const DestinationModal: React.FC<DestinationModalProps> = ({ isOpen, productName
     );
 }
 
-
-
-interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  order: Order | null;
-  onConfirm: (amountReceived: string) => void;
-}
-
-const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, order, onConfirm }) => {
-  const [amountReceived, setAmountReceived] = useState('');
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setAmountReceived('');
-    }
-  }, [isOpen]);
-
-  // Calculamos cuánto debe realmente
-  const owed = useMemo(() => {
-    if (!order) return 0;
-    return order.total - (order.paidBalance || 0);
-  }, [order]);
-
-  const change = useMemo(() => {
-    const received = parseFloat(amountReceived);
-    return isNaN(received) ? 0 : received - owed;
-  }, [amountReceived, owed]);
-
-  if (!isOpen || !order) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-fade-in">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-5">
-                <h3 className="text-xl font-bold text-gray-900">Procesar Pago</h3>
-                <button onClick={onClose} className="text-gray-400 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors">
-                    <X size={20} />
-                </button>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center mb-4">
-                <p className="text-sm text-blue-700 font-medium">
-                    {order.paidBalance && order.paidBalance > 0 ? 'Falta por Pagar' : 'Total a Pagar'}
-                </p>
-                <p className="text-4xl font-extrabold text-blue-900">${owed.toFixed(2)}</p>
-            </div>
-
-            <div className="relative mb-4">
-                <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                    type="number"
-                    value={amountReceived}
-                    onChange={e => setAmountReceived(e.target.value)}
-                    placeholder="Monto Recibido"
-                    className="w-full pl-12 pr-4 py-4 bg-gray-100 border-2 border-transparent text-lg font-bold text-center focus:bg-white focus:border-green-400 rounded-lg transition-all outline-none"
-                    autoFocus
-                />
-            </div>
-
-             <div className="bg-green-50 border border-green-200 p-4 rounded-lg text-center mb-6">
-                <p className="text-sm text-green-700 font-medium">Cambio</p>
-                <p className={`text-4xl font-extrabold ${change < 0 ? 'text-red-500' : 'text-green-800'}`}>
-                    ${change < 0 ? '---' : change.toFixed(2)}
-                </p>
-            </div>
-
-            <button 
-                onClick={() => onConfirm(amountReceived)} 
-                disabled={change < 0 || !amountReceived} 
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg transition-all shadow-lg shadow-green-200 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                Confirmar Pago
-            </button>
-        </div>
-    </div>
-  );
-};
-
 interface TakeawayNameModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -565,6 +516,7 @@ const WaiterPOS: React.FC = () => {
   const [tables, setTables] = useState<Table[]>([]);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
 
   // Modals State
@@ -576,7 +528,7 @@ const WaiterPOS: React.FC = () => {
   const [productForCustomization, setProductForCustomization] = useState<Product | null>(null);
   const [pendingNotes, setPendingNotes] = useState<string | null>(null);
   const [nextRoundNumber, setNextRoundNumber] = useState(1);
-  const [itemForDestination, setItemForDestination] = useState<{product: Product, notes: string} | null>(null); // <--- NUEVO
+  const [itemForDestination, setItemForDestination] = useState<{product: Product, notes: string} | null>(null);
 
   // --- DATA LOADING AND PERSISTENCE ---
   useEffect(() => {
@@ -625,6 +577,7 @@ const WaiterPOS: React.FC = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     setView(ViewMode.LOGIN);
+    setOrderHistory([]);
   };
 
   // --- HELPERS ---
@@ -690,28 +643,22 @@ const WaiterPOS: React.FC = () => {
     setIsPaymentModalOpen(true);
   };
 
- const confirmPayment = async (amountReceivedStr: string) => {
+  // 🔥 NUEVA LÓGICA DE COBRO CON MÚLTIPLES PAGOS
+  const confirmPayment = async (payments: Payment[]) => {
     if (!currentOrder) return;
-    const received = parseFloat(amountReceivedStr);
-    
-    // Lo que falta por pagar
-    const owed = currentOrder.total - (currentOrder.paidBalance || 0);
-    
-    if (isNaN(received) || received < owed) {
-      alert("El monto recibido es insuficiente.");
-      return;
-    }
 
-    const changeAmount = received - owed;
-    // Sumamos lo que acaba de pagar a su saldo histórico
-    const newPaidBalance = (currentOrder.paidBalance || 0) + owed;
+    // Todo lo que paguen se suma al balance. Si pagaron de más con tarjeta, 
+    // el paidBalance quedará más alto que el total (lo cual indica propina en el corte de caja).
+    const sessionTotalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+    const newPaidBalance = (currentOrder.paidBalance || 0) + sessionTotalPaid;
+
+    const updatedPaymentsList = [...(currentOrder.payments || []), ...payments];
 
     const finalOrderState: Order = {
         ...currentOrder,
-        paymentStatus: 'PAID', // Queda pagado... por ahora
-        amountPaid: received,
-        change: changeAmount,
-        paidBalance: newPaidBalance // Guardamos el nuevo abono
+        paymentStatus: newPaidBalance >= currentOrder.total ? 'PAID' : 'UNPAID', 
+        paidBalance: newPaidBalance, 
+        payments: updatedPaymentsList
     };
 
     try {
@@ -724,6 +671,7 @@ const WaiterPOS: React.FC = () => {
         alert("Error de conexión al cobrar.");
     }
   };
+
   const handleFreeTable = async (tableId: number, orderId: string) => {
       if (window.confirm('¿Liberar esta mesa y marcar el pedido como finalizado?')) {
           const orderToComplete = activeOrders.find(o => o.id === orderId);
@@ -818,7 +766,6 @@ const WaiterPOS: React.FC = () => {
     updateCurrentOrder({ ...currentOrder, items: newItems, total });
   };
 
-  // NUEVA FUNCIÓN (ponla justo debajo)
   const handleConfirmDestination = (destination: 'AQUI' | 'LLEVAR') => {
     if (itemForDestination) {
         addCustomizedItemToOrder(itemForDestination.product, itemForDestination.notes, destination);
@@ -865,13 +812,9 @@ const WaiterPOS: React.FC = () => {
       orderIdToOpen = table.currentOrderId;
       
       // 🔥 TRUCO DE RONDAS:
-      // Cuando abrimos una mesa existente, revisamos sus items.
-      // Si voy a agregar cosas nuevas, quiero que sean "Ronda X + 1".
       const existingOrder = activeOrders.find(o => o.id === orderIdToOpen);
       if (existingOrder && existingOrder.items.length > 0) {
-          // Buscamos la ronda más alta que ya existe
           const maxRound = Math.max(...existingOrder.items.map(i => i.round || 1));
-          // Guardamos en una variable de estado (necesitamos crearla arriba) que la "Siguiente Ronda" es maxRound + 1
           setNextRoundNumber(maxRound + 1);
       } else {
           setNextRoundNumber(1);
@@ -959,7 +902,7 @@ const WaiterPOS: React.FC = () => {
       <header className="bg-white p-4 shadow-sm flex items-center justify-between relative">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <User size={16} /> 
-            <span className="font-bold">{currentUser.name}</span>
+            <span className="font-bold">{currentUser?.name || 'Mesero'}</span>
           </div>
           <span className="font-bold text-lg text-gray-700 absolute left-1/2 -translate-x-1/2">Modo Mesero</span>
           <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-red-500 font-semibold hover:text-red-700">
@@ -967,35 +910,55 @@ const WaiterPOS: React.FC = () => {
             Salir
           </button>
       </header>
-      <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 p-8">
+      
+      {/* Ajustamos a flex-wrap para que si la pantalla es chica, se acomoden solos */}
+      <div className="flex-1 flex flex-row flex-wrap items-center justify-center gap-6 p-6 overflow-y-auto">
+        
+        {/* BOTÓN 1: MESAS */}
         <button 
           onClick={() => setView(ViewMode.TABLES)}
-          className="group w-full max-w-sm aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-orange-500"
+          className="group w-full max-w-[280px] aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-orange-500"
         >
-          <div className="bg-orange-100 p-8 rounded-full group-hover:bg-orange-200 transition-colors">
-            <Utensils size={64} className="text-orange-600" />
+          <div className="bg-orange-100 p-6 rounded-full group-hover:bg-orange-200 transition-colors">
+            <Utensils size={56} className="text-orange-600" />
           </div>
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800">Para Aquí</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Para Aquí</h2>
             <p className="text-gray-500 mt-2">Seleccionar mesa</p>
           </div>
         </button>
 
+        {/* BOTÓN 2: LLEVAR */}
         <button 
           onClick={() => setView(ViewMode.TAKEAWAY)}
-          className="group w-full max-w-sm aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-purple-500"
+          className="group w-full max-w-[280px] aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-purple-500"
         >
-          <div className="bg-purple-100 p-8 rounded-full group-hover:bg-purple-200 transition-colors">
-            <ShoppingBag size={64} className="text-purple-600" />
+          <div className="bg-purple-100 p-6 rounded-full group-hover:bg-purple-200 transition-colors">
+            <ShoppingBag size={56} className="text-purple-600" />
           </div>
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800">Para Llevar</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Para Llevar</h2>
             <p className="text-gray-500 mt-2">Pedidos por nombre</p>
           </div>
         </button>
+
+        {/* BOTÓN 3: EL NUEVO HISTORIAL */}
+        <button 
+          onClick={() => setView(ViewMode.HISTORY)}
+          className="group w-full max-w-[280px] aspect-square bg-white rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-6 border-2 border-transparent hover:border-emerald-500"
+        >
+          <div className="bg-emerald-100 p-6 rounded-full group-hover:bg-emerald-200 transition-colors">
+            <ScrollText size={56} className="text-emerald-600" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800">Historial</h2>
+            <p className="text-gray-500 mt-2">Mis tickets cobrados</p>
+          </div>
+        </button>
+
       </div>
     </div>
-  );
+);
 
   const renderTableGrid = () => (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -1216,12 +1179,21 @@ const WaiterPOS: React.FC = () => {
     );
   };
 
+  const renderHistory = () => (
+      <WaiterHistory 
+          // 👇 AQUÍ ESTÁ LA MAGIA: Le pasamos el historial real en lugar de las activas
+          orders={orderHistory} 
+          waiterName={currentUser?.name || 'Mesero'} 
+          onBack={() => setView(ViewMode.EMPLOYEE_SELECT)} 
+      />
+  );
   const renderCurrentView = () => {
     switch (view) {
       case ViewMode.EMPLOYEE_SELECT: return renderEmployeeSelect();
       case ViewMode.TABLES: return renderTableGrid();
       case ViewMode.TAKEAWAY: return renderTakeawayList();
       case ViewMode.ORDER_PAD: return renderOrderPad();
+      case ViewMode.HISTORY: return renderHistory(); // 🔥 ESTA ES LA LÍNEA NUEVA
       default: return <LoginScreen onLogin={handleLogin} />;
     }
   }
@@ -1233,6 +1205,7 @@ const WaiterPOS: React.FC = () => {
         onClose={() => setIsTakeawayNameModalOpen(false)}
         onCreate={createNewTakeawayOrder}
       />
+      {/* 🔥 AQUÍ ESTÁ EL NUEVO COMPONENTE CONECTADO */}
       <PaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}

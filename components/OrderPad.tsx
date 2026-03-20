@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { MENU_ITEMS } from '../constants';
+import { printTicketDirectly } from '../printerService';
 import { Order, OrderItem, Product, Category } from '../types';
-import { Trash2, Plus, Minus, Save, CheckCircle, ArrowLeft, Search, UtensilsCrossed, Beer, Coffee, Sandwich, ReceiptText, User } from 'lucide-react';
+import { Trash2, Plus, Minus, Save, CheckCircle, ArrowLeft, Search, UtensilsCrossed, Beer, Coffee, Sandwich, ReceiptText, User, Printer } from 'lucide-react';
 
 interface OrderPadProps {
   currentOrder: Order;
@@ -37,14 +38,15 @@ const CategoryIcon: React.FC<{ category: Category }> = ({ category }) => {
 
 interface TicketContentProps {
   currentOrder: Order;
+  waiterName: string; // 🔥 Añadimos waiterName como prop
   updateQuantity: (itemId: string, delta: number, notes?: string) => void;
   onSave: () => void;
   onFinish: () => void;
 }
 
-const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuantity, onSave, onFinish }) => {
+const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, waiterName, updateQuantity, onSave, onFinish }) => {
   
-  // 🔥 AQUÍ CREAMOS LA RED DE SEGURIDAD
+  // 🔥 RED DE SEGURIDAD
   const handleConfirmSave = () => {
     if (window.confirm('¿Seguro que quieres pasar el pedido a cocina?')) {
         onSave();
@@ -100,9 +102,9 @@ const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuant
           <span className="text-4xl font-extrabold text-slate-900">${currentOrder.total.toFixed(2)}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-3">
           <button
-            onClick={handleConfirmSave} // 🔥 AHORA APUNTA A NUESTRA FUNCIÓN
+            onClick={handleConfirmSave}
             disabled={currentOrder.items.length === 0}
             className="flex flex-col items-center justify-center bg-white border-2 border-amber-400 text-amber-600 hover:bg-amber-50 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
@@ -118,6 +120,20 @@ const TicketContent: React.FC<TicketContentProps> = ({ currentOrder, updateQuant
             <span className="text-sm">Cobrar</span>
           </button>
         </div>
+
+        {/* 🔥 EL NUEVO BOTÓN DE IMPRIMIR */}
+        <button
+            onClick={(e) => {
+                e.preventDefault();
+                printTicketDirectly(currentOrder, waiterName || 'Mesero');
+            }}
+            disabled={currentOrder.items.length === 0}
+            className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-md"
+        >
+            <Printer className="w-5 h-5" />
+            <span>Imprimir Ticket</span>
+        </button>
+
       </div>
     </>
   );
@@ -304,7 +320,6 @@ export const OrderPad: React.FC<OrderPadProps> = ({
                             {product.category}
                         </div>
                         <span className="font-bold text-gray-800 text-base md:text-lg leading-tight block">
-                            {/* FIX: Removed redundant String() call. */}
                             {product.name}
                         </span>
                     </div>
@@ -342,6 +357,7 @@ export const OrderPad: React.FC<OrderPadProps> = ({
         </div>
         <TicketContent 
             currentOrder={currentOrder}
+            waiterName={waiterName} // 🔥 Le pasamos el waiterName
             updateQuantity={updateQuantity}
             onSave={onSave}
             onFinish={onFinish}
@@ -363,6 +379,7 @@ export const OrderPad: React.FC<OrderPadProps> = ({
             </div>
              <TicketContent 
                 currentOrder={currentOrder}
+                waiterName={waiterName} // 🔥 Le pasamos el waiterName
                 updateQuantity={updateQuantity}
                 onSave={onSave}
                 onFinish={onFinish}
